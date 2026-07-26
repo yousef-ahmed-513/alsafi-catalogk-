@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TALEEN TOWER — كتالوج الوحدات | FARIS</title>
+<meta name="theme-color" content="#0b1526">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Marcellus&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b1526; --navy2:#101d33; --gold:#c9a35c; --gold2:#e8c98a; --ink:#0a0f1a;
+  --pw:437px; --ph:650px;            /* page size (JS may scale) */
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;font-family:Tajawal,system-ui,sans-serif;background:var(--navy);color:#fff}
+body{display:flex;flex-direction:column;
+  background:
+    radial-gradient(1200px 700px at 50% 18%, #1a2b4a 0%, transparent 60%),
+    radial-gradient(900px 500px at 85% 90%, rgba(201,163,92,.10) 0%, transparent 55%),
+    linear-gradient(180deg,#0d1930,#0b1526 55%,#080f1d)}
+/* subtle luxury dust */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(1.5px 1.5px at 12% 30%,rgba(232,201,138,.35),transparent 60%),
+  radial-gradient(1px 1px at 78% 22%,rgba(232,201,138,.30),transparent 60%),
+  radial-gradient(1.5px 1.5px at 60% 75%,rgba(232,201,138,.22),transparent 60%),
+  radial-gradient(1px 1px at 30% 85%,rgba(232,201,138,.25),transparent 60%),
+  radial-gradient(1px 1px at 90% 60%,rgba(232,201,138,.2),transparent 60%)}
+
+/* ===== Top bar ===== */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px;z-index:5}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{font-family:Marcellus,serif;letter-spacing:.35em;color:var(--gold2);font-size:15px}
+.brand .sep{width:1px;height:16px;background:rgba(232,201,138,.4)}
+.brand .name{font-weight:800;font-size:14px;color:#dfe6f2}
+.top-actions{display:flex;gap:8px}
+.tbtn{border:1px solid rgba(232,201,138,.35);background:rgba(11,21,38,.5);color:var(--gold2);
+  border-radius:999px;padding:8px 14px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px)}
+.tbtn:hover{background:rgba(201,163,92,.15)}
+.tbtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+
+/* ===== Stage ===== */
+.stage{flex:1;display:grid;place-items:center;perspective:2600px;position:relative;z-index:2}
+.book-wrap{position:relative;transition:transform .5s ease}
+.book{position:relative;width:calc(var(--pw)*2);height:var(--ph);transform-style:preserve-3d}
+/* table shadow */
+.book::after{content:"";position:absolute;inset-inline:6%;bottom:-34px;height:50px;border-radius:50%;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.55), transparent 70%);filter:blur(6px);z-index:-1}
+
+/* sheets rest on LEFT half (Arabic book, spine on the right/center) */
+.sheet{position:absolute;top:0;left:0;width:var(--pw);height:var(--ph);
+  transform-style:preserve-3d;transform-origin:right center;
+  transition:transform 1.05s cubic-bezier(.36,.04,.22,1)}
+.sheet.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  overflow:hidden;background:#f7f3ea}
+.face img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none}
+.face.back{transform:rotateY(180deg)}
+/* rounded outer corners only */
+.face.front{border-radius:14px 3px 3px 14px}
+.face.back{border-radius:3px 14px 14px 3px}
+/* gutter + lighting on pages */
+.face.front::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(270deg, rgba(0,0,0,.20), rgba(0,0,0,.05) 12%, transparent 22%, transparent 88%, rgba(255,255,255,.06) 97%)}
+.face.back::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(90deg, rgba(0,0,0,.20), rgba(0,0,0,.05) 12%, transparent 22%, transparent 88%, rgba(255,255,255,.06) 97%)}
+/* dynamic shade while turning */
+.face .shade{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,.45),transparent 55%);transition:opacity .5s}
+.sheet.turning .face .shade{opacity:1}
+/* moving cast shadow on the pile */
+.sheet::before{content:"";position:absolute;top:2%;bottom:2%;right:0;width:36px;transform:translateX(100%);
+  background:linear-gradient(90deg,rgba(0,0,0,.35),transparent);opacity:0;transition:opacity .4s;pointer-events:none}
+.sheet.turning::before{opacity:1}
+/* stacked page edges */
+.edges-r,.edges-l{position:absolute;top:6px;bottom:6px;width:14px;z-index:-1;
+  background:repeating-linear-gradient(90deg,#efe9dc 0 2px,#d9d2c2 2px 3px);border-radius:3px}
+.edges-r{right:-11px;border-radius:0 4px 4px 0}
+.edges-l{left:-11px;border-radius:4px 0 0 4px}
+
+/* ===== The generated leather cover faces ===== */
+.leather{position:absolute;inset:0;background:#122036;display:grid;place-items:center}
+.leather img.art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.leather .css-leather{position:absolute;inset:0;
+  background:radial-gradient(120% 90% at 50% 30%, #1b3050 0%, #0f1c33 55%, #0a1425 100%)}
+.leather .frame{position:absolute;inset:16px;border:1.5px solid rgba(201,163,92,.85);border-radius:8px;
+  box-shadow:inset 0 0 0 4px rgba(201,163,92,.18), inset 0 0 60px rgba(0,0,0,.35)}
+.leather .frame::after{content:"";position:absolute;inset:7px;border:1px solid rgba(201,163,92,.45);border-radius:5px}
+.cover-copy{position:relative;z-index:2;text-align:center;padding:0 26px;text-shadow:0 2px 18px rgba(0,0,0,.55)}
+.cover-copy .house{font-family:Marcellus,serif;letter-spacing:.5em;color:var(--gold2);font-size:15px;margin-bottom:18px}
+.cover-copy .rule{width:64px;height:1px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);margin:0 auto 18px}
+.cover-copy h1{font-family:Marcellus,serif;font-weight:400;color:var(--gold2);font-size:44px;letter-spacing:.12em;margin:0 0 8px;line-height:1.1}
+.cover-copy .ar-title{font-weight:800;font-size:21px;color:#f1e7d2;margin:0 0 26px}
+.cover-copy .subtitle{font-size:13.5px;color:#cfd8e6;font-weight:500;letter-spacing:.05em}
+.cover-copy .year{margin-top:30px;font-family:Marcellus,serif;color:rgba(232,201,138,.8);letter-spacing:.4em;font-size:12px}
+.closing .cover-copy h2{font-weight:800;font-size:26px;color:#f1e7d2;margin:0 0 14px}
+.closing .cover-copy p{margin:6px 0;color:#dfe6f2;font-size:14.5px}
+.closing .cover-copy .phone{direction:ltr;font-family:Marcellus,serif;font-size:20px;color:var(--gold2);letter-spacing:.08em}
+
+/* ===== Bottom bar ===== */
+.bottombar{z-index:5;padding:10px 16px 16px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.progress{width:min(560px,86vw);height:3px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.chip{border:1px solid rgba(255,255,255,.16);background:rgba(16,29,51,.6);color:#dfe6f2;border-radius:999px;
+  padding:7px 13px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px)}
+.chip:hover{border-color:rgba(232,201,138,.6);color:var(--gold2)}
+.chip.active{background:rgba(201,163,92,.18);border-color:var(--gold);color:var(--gold2)}
+.chip:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.counter{font-size:12px;color:#9fb0c8;letter-spacing:.06em;min-width:70px;text-align:center}
+.navbtn{width:42px;height:42px;border-radius:50%;border:1px solid rgba(232,201,138,.4);cursor:pointer;
+  background:rgba(11,21,38,.55);color:var(--gold2);font-size:20px;line-height:1;backdrop-filter:blur(6px)}
+.navbtn:hover{background:rgba(201,163,92,.18)}
+.navbtn:disabled{opacity:.3;cursor:default}
+.navbtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+
+/* first-time hint */
+.hint{position:fixed;inset-inline:0;bottom:110px;display:grid;place-items:center;z-index:9;pointer-events:none}
+.hint span{background:rgba(10,15,26,.8);border:1px solid rgba(232,201,138,.4);color:#f1e7d2;font-size:13px;
+  padding:10px 18px;border-radius:999px;backdrop-filter:blur(8px);animation:hintfloat 2.2s ease-in-out infinite}
+@keyframes hintfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.hint.hide{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  .sheet{transition:transform .01s}
+  .hint span{animation:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">FARIS</span><span class="sep"></span><span class="name">TALEEN TOWER — كتالوج الوحدات</span>
+  </div>
+  <div class="top-actions">
+    <button class="tbtn" id="fsBtn" type="button">ملء الشاشة</button>
+  </div>
+</header>
+
+<main class="stage" id="stage">
+  <div class="book-wrap" id="bookWrap">
+    <div class="book" id="book">
+      <div class="edges-l" id="edgesL"></div>
+      <div class="edges-r" id="edgesR"></div>
+      <!-- sheets injected by JS -->
+    </div>
+  </div>
+</main>
+
+<div class="hint" id="hint"><span>اضغط على الصفحة أو اسحب لتقليب الكتاب 📖</span></div>
+
+<footer class="bottombar">
+  <div class="progress"><i id="progressFill"></i></div>
+  <div class="controls">
+    <button class="navbtn" id="prevBtn" type="button" aria-label="السابق">‹</button>
+    <button class="chip" data-face="0">الغلاف</button>
+    <button class="chip" data-face="1">البوستر</button>
+    <button class="chip" data-face="2">الميزانين</button>
+    <button class="chip" data-face="8">الدور 1</button>
+    <button class="chip" data-face="14">الدور 2</button>
+    <button class="chip" data-face="20">الدور 3</button>
+    <button class="chip" data-face="26">الدور 4</button>
+    <button class="chip" data-face="32">الأسعار</button>
+    <span class="counter" id="counter"></span>
+    <button class="navbtn" id="nextBtn" type="button" aria-label="التالي">›</button>
+  </div>
+</footer>
+
+<script src="book.js"></script>
+</body>
+</html>

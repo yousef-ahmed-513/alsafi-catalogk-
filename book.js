@@ -33,7 +33,8 @@ const COVER_ART = 'cover-art.jpg';            // Higgsfield leather art (optiona
 
 function faceHTML(f){
   if (f.type === 'img')
-    return `<img src="${f.src}" alt="" loading="lazy" decoding="async">`;
+    return `<img src="${f.src}" alt="" loading="lazy" decoding="async"
+      onerror="this.closest('.face').classList.add('missing');this.remove()">`;
   if (f.type === 'cover')
     return `<div class="leather">
       <div class="css-leather"></div>

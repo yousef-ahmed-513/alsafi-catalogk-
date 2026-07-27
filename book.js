@@ -2,10 +2,20 @@
 'use strict';
 /* ================= TALEEN flipbook — RTL (Arabic) =================
    Faces (reading order):
-   0  = leather cover (front)
-   1  = p01 (TALEEN poster)
-   2..33 = p02..p32 + closing face
+   0     = leather cover (front)
+   1     = inside front cover (blank leather)
+   2     = p01 (TALEEN poster)
+   3..34 = p02..p32  +  inside back cover
+   35    = closing face (back cover)
    Sheet i front = face 2i, back = face 2i+1  (cover sheet is i=0)
+   A spread shows face 2f-1 on the RIGHT and face 2f on the LEFT.
+
+   The inside-front-cover blank is what keeps the catalogue aligned: without it
+   p01 becomes the back of the cover sheet and every 6-page floor section is
+   knocked half a spread out of step, so sections straddle spreads. With it,
+   each section starts on a right-hand page and ends on a left-hand one:
+     poster | ميزانين p02-p07 | دور1 p08-p13 | دور2 p14-p19
+     دور3 p20-p25 | دور4 p26-p31 | الأسعار p32
    Unflipped sheets rest on LEFT half; flipping rotates them to RIGHT. */
 
 const TOTAL_PAGES = 32;                       // p01..p32
@@ -14,11 +24,21 @@ const pageSrc = n => `p${String(n).padStart(2,'0')}.jpg`;   // images sit next t
 // Build the ordered face list
 const faces = [];
 faces.push({type:'cover'});                   // face 0
-for (let n=1; n<=TOTAL_PAGES; n++) faces.push({type:'img', src:pageSrc(n)}); // 1..32
-faces.push({type:'closing'});                 // face 33
+faces.push({type:'blank'});                   // face 1  — inside front cover
+for (let n=1; n<=TOTAL_PAGES; n++) faces.push({type:'img', src:pageSrc(n)}); // 2..33
+faces.push({type:'blank'});                   // face 34 — inside back cover
+faces.push({type:'closing'});                 // face 35 — back cover
 // pad to even count so every sheet has 2 faces
-if (faces.length % 2) faces.push({type:'blank'});
+if (faces.length % 2) faces.splice(faces.length-1, 0, {type:'blank'});
 const SHEETS = faces.length / 2;
+
+// page number (1..32) -> face index, and the pages visible at a given flip position
+const faceOfPage = n => n + 1;
+const spreadOfPage = n => Math.ceil(faceOfPage(n) / 2);   // flip count that reveals that page
+function visiblePages(f){
+  if (f <= 0 || f >= SHEETS) return [];
+  return [2*f-2, 2*f-1].filter(n => n >= 1 && n <= TOTAL_PAGES);   // [right, left]
+}
 
 const book = document.getElementById('book');
 const wrap = document.getElementById('bookWrap');
@@ -85,26 +105,25 @@ function zOrder(){
   }
 }
 function counterText(){
-  // visible faces: right = back of sheet(flipped-1) → face 2*flipped-1 ; left = front of sheet(flipped) → face 2*flipped
-  const total = faces.length;
-  let cur;
-  if (flipped === 0) cur = '1';
-  else if (flipped === SHEETS) cur = String(total);
-  else cur = `${2*flipped} – ${2*flipped+1}`;
-  counter.textContent = `${cur} / ${total}`;
+  // count real catalogue pages (p01..p32), not the cover/blank faces
+  if (flipped === 0)        { counter.textContent = 'الغلاف';  return; }
+  if (flipped === SHEETS)   { counter.textContent = 'الختام';  return; }
+  const pages = visiblePages(flipped);
+  const cur = pages.length > 1 ? `${pages[0]} – ${pages[1]}` : String(pages[0]);
+  counter.textContent = `${cur} / ${TOTAL_PAGES}`;
 }
 function activeChip(){
-  const face = flipped === 0 ? 0 : 2*flipped;   // left visible face index
-  let best = null;
-  chips.forEach(c=>{
-    const f = +c.dataset.face;
-    if (f <= Math.max(face, flipped===0?0:2*flipped-1)) best = c;
-  });
+  const pages = visiblePages(flipped);
+  let best = chips[0];                                  // الغلاف
+  if (pages.length){
+    const last = pages[pages.length-1];                 // deepest page on screen
+    chips.forEach(c=>{ if (+c.dataset.page && +c.dataset.page <= last) best = c; });
+  }
   chips.forEach(c=>c.classList.toggle('active', c===best));
 }
 function preload(){
   // ensure imgs near current position are fetched
-  const from = Math.max(1, 2*flipped-2), to = Math.min(TOTAL_PAGES, 2*flipped+4);
+  const from = Math.max(1, 2*flipped-4), to = Math.min(TOTAL_PAGES, 2*flipped+3);
   for (let n=from;n<=to;n++){ const im=new Image(); im.src = pageSrc(n); }
 }
 function render(){
@@ -141,8 +160,8 @@ const prev = () => flipTo(flipped-1);
 nextBtn.addEventListener('click', next);
 prevBtn.addEventListener('click', prev);
 chips.forEach(c=>c.addEventListener('click', ()=>{
-  const face = +c.dataset.face;                 // jump so that face is visible
-  flipTo(face===0 ? 0 : Math.max(1, Math.ceil(face/2)));
+  const page = +c.dataset.page;                 // jump so that page starts the spread
+  flipTo(page ? spreadOfPage(page) : 0);
 }));
 
 // click page halves: left half = next (RTL), right half = prev

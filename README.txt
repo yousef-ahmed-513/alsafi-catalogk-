@@ -22,8 +22,14 @@ CONTROLS:
 - Bottom chips jump to sections. Fullscreen button top-left.
 
 PHONES:
-The same link adapts — one page at a time on a phone (either orientation)
-and on a tablet held upright, the two-page book on tablets in landscape
-and on laptops. In single-page mode, double-tap or pinch to zoom into a
-floor plan and drag to pan; swipe or tap a screen half to turn. Rotating
-the device keeps your place.
+The same link shows the same two-page book everywhere — it is only scaled
+to the screen. Drag the paper with a finger (or the mouse) and the sheet
+follows you, settling open or closed when you let go; grab the left page to
+go forward, the right page to go back. Tapping a page half turns it too.
+Because the book is small on a phone, pinch (or double-tap, or the mouse
+wheel) magnifies the spread and one finger then pans it.
+
+ADDING PAGES:
+Edit the SECTIONS list at the top of book.js — it is the running order.
+Keep every section an even number of pages, or the sections after it will
+straddle spreads instead of starting on a right-hand page.

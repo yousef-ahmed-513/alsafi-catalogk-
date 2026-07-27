@@ -1,12 +1,11 @@
 (() => {
 'use strict';
 /* ================= TALEEN flipbook — RTL (Arabic) =================
-   One link, two presentations over a single shared position model:
-
-     spread — the 3D two-page book. Tablet, laptop, phone in landscape.
-     single — one page filling the screen. Phone in portrait, where a
-              two-page spread would shrink each floor plan to ~180px wide
-              and make the dimension text unreadable.
+   Always a real two-page book, on every screen. Pages are turned by
+   dragging the paper with a finger (or the mouse) — the sheet follows the
+   pointer and settles when released — with the chips and arrows kept as a
+   shortcut. Pinch or double-tap magnifies the spread, which is how the
+   dimension text stays readable when the book is scaled down on a phone.
 
    Faces (spread reading order):
    0     = leather cover (front)
@@ -21,51 +20,56 @@
    The inside-front-cover blank is what keeps the catalogue aligned: without
    it p01 becomes the back of the cover sheet and every 6-page floor section
    is knocked half a spread out of step, so sections straddle spreads. With
-   it, each section starts on a right-hand page and ends on a left-hand one:
-     poster | ميزانين p02-p07 | دور1 p08-p13 | دور2 p14-p19
-     دور3 p20-p25 | دور4 p26-p31 | الأسعار p32
+   it, each section starts on a right-hand page and ends on a left-hand one.
    Unflipped sheets rest on LEFT half; flipping rotates them to RIGHT. */
 
-const TOTAL_PAGES = 32;                       // p01..p32
 const pageSrc = n => `p${String(n).padStart(2,'0')}.jpg`;   // images sit next to index.html
 const COVER_ART = 'cover-art.jpg';            // Higgsfield leather art (optional, CSS fallback)
+
+/* ---------------- running order ----------------
+   PAGES is the single source of truth for what the book contains and in what
+   order. Sections must stay a whole number of spreads long (an even count)
+   or everything after them straddles a spread — see the header note. */
+const SECTIONS = [
+  { key:'poster',    label:'البوستر',   pages:[1] },
+  { key:'mezzanine', label:'الميزانين', pages:[2,3,4,5,6,7] },
+  { key:'floor1',    label:'الدور 1',   pages:[8,9,10,11,12,13] },
+  { key:'floor2',    label:'الدور 2',   pages:[14,15,16,17,18,19] },
+  { key:'floor3',    label:'الدور 3',   pages:[20,21,22,23,24,25] },
+  { key:'floor4',    label:'الدور 4',   pages:[26,27,28,29,30,31] },
+  { key:'prices',    label:'الأسعار',   pages:[32] },
+];
+const PAGES = SECTIONS.flatMap(s => s.pages);
+const TOTAL_PAGES = PAGES.length;
 
 /* ---------------- face list ---------------- */
 const faces = [];
 faces.push({type:'cover'});                   // face 0
 faces.push({type:'blank'});                   // face 1  — inside front cover
-for (let n=1; n<=TOTAL_PAGES; n++) faces.push({type:'img', src:pageSrc(n), page:n}); // 2..33
-faces.push({type:'blank'});                   // face 34 — inside back cover
-faces.push({type:'closing'});                 // face 35 — back cover
-// pad to even count so every sheet has 2 faces, keeping the closing face last
+PAGES.forEach((n,i)=> faces.push({type:'img', src:pageSrc(n), page:i+1}));
+faces.push({type:'blank'});                   // inside back cover
+faces.push({type:'closing'});                 // back cover
+// pad to an even count so every sheet has 2 faces, keeping the closing face last
 if (faces.length % 2) faces.splice(faces.length-1, 0, {type:'blank'});
 const SHEETS = faces.length / 2;
 
-const faceOfPage   = n => n + 1;
-const spreadOfPage = n => Math.ceil(faceOfPage(n) / 2);   // flip count that reveals that page
+const faceOfPage   = n => n + 1;              // page n (1-based) -> face index
+const spreadOfPage = n => Math.ceil(faceOfPage(n) / 2);
 function visiblePages(f){
   if (f <= 0 || f >= SHEETS) return [];
   return [2*f-2, 2*f-1].filter(n => n >= 1 && n <= TOTAL_PAGES);   // [right, left]
 }
 
-/* Single-page running order: cover, p01..p32, closing. The leather blanks are
-   a spread-only device, so `stops[n]` is exactly page n — that identity is
-   what lets both modes share one position value. */
-const stops = faces.filter(f => f.type !== 'blank');
-const LAST  = stops.length - 1;               // closing face
-
 /* ---------------- DOM ---------------- */
-const book     = document.getElementById('book');
-const wrap     = document.getElementById('bookWrap');
-const single   = document.getElementById('single');
-const stage    = document.getElementById('stage');
-const counter  = document.getElementById('counter');
-const fill     = document.getElementById('progressFill');
-const prevBtn  = document.getElementById('prevBtn');
-const nextBtn  = document.getElementById('nextBtn');
-const hint     = document.getElementById('hint');
-const hintText = document.getElementById('hintText');
-const chips    = [...document.querySelectorAll('.chip')];
+const book    = document.getElementById('book');
+const wrap    = document.getElementById('bookWrap');
+const stage   = document.getElementById('stage');
+const counter = document.getElementById('counter');
+const fill    = document.getElementById('progressFill');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const hint    = document.getElementById('hint');
+const chips   = [...document.querySelectorAll('.chip')];
 
 function faceHTML(f){
   if (f.type === 'img')
@@ -100,7 +104,6 @@ function faceHTML(f){
   return `<div class="leather"><div class="css-leather"></div><div class="frame"></div></div>`;
 }
 
-/* ---------------- spread mode: build sheets ---------------- */
 const sheets = [];
 for (let i=0;i<SHEETS;i++){
   const s = document.createElement('div');
@@ -111,58 +114,21 @@ for (let i=0;i<SHEETS;i++){
   book.appendChild(s); sheets.push(s);
 }
 
-/* ---------------- single mode: build pages ----------------
-   Images carry data-src and are hydrated in a window around the current
-   page, so a phone never pulls all 32 full-size scans over mobile data. */
-const singleEls = stops.map(f => {
-  const el = document.createElement('div');
-  el.className = 'spage';
-  el.innerHTML = f.type === 'img'
-    ? `<div class="zoomer"><img data-src="${f.src}" alt="" decoding="async"
-         onerror="this.closest('.spage').classList.add('missing');this.remove()"></div>`
-    : `<div class="zoomer sheetish">${faceHTML(f)}</div>`;
-  single.appendChild(el);
-  return el;
-});
-function hydrate(p){
-  for (let i=Math.max(0,p-2); i<=Math.min(LAST,p+2); i++){
-    const img = singleEls[i].querySelector('img[data-src]');
-    if (img){ img.src = img.dataset.src; img.removeAttribute('data-src'); }
-  }
-}
-
-/* ---------------- shared position ----------------
-   `pos` is an index into `stops`: 0 = cover, 1..32 = page n, LAST = closing. */
-let mode = 'spread';
-let pos = 0;
-let flipped = 0;            // spread only: number of sheets flipped to the right
+/* ---------------- state ---------------- */
+let flipped = 0;            // sheets turned to the right
 let animating = false;
 
-const posToFlipped = p => p <= 0 ? 0 : p >= LAST ? SHEETS : spreadOfPage(p);
-function flippedToPos(f){
-  if (f <= 0) return 0;
-  if (f >= SHEETS) return LAST;
-  const pg = visiblePages(f);
-  return pg.length ? pg[0] : 0;
-}
-
-/* ---------------- shared chrome ---------------- */
-function currentPages(){
-  if (mode === 'single') return (pos >= 1 && pos <= TOTAL_PAGES) ? [pos] : [];
-  return visiblePages(flipped);
-}
+/* ---------------- chrome ---------------- */
 function counterText(){
-  const atStart = mode === 'single' ? pos === 0    : flipped === 0;
-  const atEnd   = mode === 'single' ? pos === LAST : flipped === SHEETS;
-  if (atStart) { counter.textContent = 'الغلاف'; return; }
-  if (atEnd)   { counter.textContent = 'الختام'; return; }
-  const pages = currentPages();
+  if (flipped === 0)      { counter.textContent = 'الغلاف'; return; }
+  if (flipped === SHEETS) { counter.textContent = 'الختام'; return; }
+  const pages = visiblePages(flipped);
   if (!pages.length) { counter.textContent = ''; return; }
   const cur = pages.length > 1 ? `${pages[0]} – ${pages[1]}` : String(pages[0]);
   counter.textContent = `${cur} / ${TOTAL_PAGES}`;
 }
 function activeChip(){
-  const pages = currentPages();
+  const pages = visiblePages(flipped);
   let best = chips[0];                                  // الغلاف
   if (pages.length){
     const last = pages[pages.length-1];                 // deepest page on screen
@@ -174,7 +140,7 @@ function activeChip(){
 }
 function preload(){
   const from = Math.max(1, 2*flipped-4), to = Math.min(TOTAL_PAGES, 2*flipped+3);
-  for (let n=from;n<=to;n++){ const im=new Image(); im.src = pageSrc(n); }
+  for (let n=from;n<=to;n++){ const im=new Image(); im.src = pageSrc(PAGES[n-1]); }
 }
 function zOrder(){
   for (let i=0;i<SHEETS;i++){
@@ -186,35 +152,40 @@ function centerShift(){
   // centre the closed book: the cover sits on one half only
   const base = flipped===0 ? 437/2 : flipped===SHEETS ? -437/2 : 0;
   book.style.transform = `translateX(${base}px)`;
-  book.style.transition = 'transform .9s cubic-bezier(.36,.04,.22,1)';
 }
-
 function render(){
-  const atStart = mode === 'single' ? pos === 0    : flipped === 0;
-  const atEnd   = mode === 'single' ? pos === LAST : flipped === SHEETS;
-  const frac    = mode === 'single' ? pos / LAST   : flipped / SHEETS;
-
-  fill.style.width = `${frac*100}%`;
-  prevBtn.disabled = atStart;
-  nextBtn.disabled = atEnd;
+  fill.style.width = `${(flipped/SHEETS)*100}%`;
+  prevBtn.disabled = flipped === 0;
+  nextBtn.disabled = flipped === SHEETS;
   counterText(); activeChip();
-
-  if (mode === 'spread'){
-    document.getElementById('edgesL').style.opacity = atEnd   ? 0 : 1;
-    document.getElementById('edgesR').style.opacity = atStart ? 0 : 1;
-    preload(); zOrder(); centerShift();
-  } else {
-    hydrate(pos);
-  }
+  document.getElementById('edgesL').style.opacity = flipped===SHEETS ? 0 : 1;
+  document.getElementById('edgesR').style.opacity = flipped===0      ? 0 : 1;
+  preload(); zOrder(); centerShift();
 }
 
-/* ---------------- spread navigation ---------------- */
+/* ---------------- programmatic turning (chips, arrows, keys) ---------------- */
+let animSeq = 0;
 function flipTo(target){
   target = Math.max(0, Math.min(SHEETS, target));
-  if (animating || target === flipped) return;
-  animating = true; hint.classList.add('hide');
+  if (drag || target === flipped) return;
+  hint.classList.add('hide');
+  const seq = ++animSeq;                        // supersedes any run still in flight
+
+  // Turning 17 sheets one at a time takes ~5s, so a distant chip snaps there.
+  if (Math.abs(target - flipped) > 3){
+    animating = false;
+    sheets.forEach(s=>s.classList.add('no-anim'));
+    sheets.forEach((s,i)=>{ s.classList.remove('turning'); s.classList.toggle('flipped', i < target); });
+    flipped = target; render();
+    void book.offsetWidth;                      // commit before re-enabling the transition
+    sheets.forEach(s=>s.classList.remove('no-anim'));
+    return;
+  }
+
+  animating = true;
   const step = () => {
-    if (flipped === target){ animating=false; pos = flippedToPos(flipped); render(); return; }
+    if (seq !== animSeq) return;
+    if (flipped === target){ animating=false; render(); return; }
     const i = target > flipped ? flipped : flipped-1;
     const s = sheets[i];
     s.classList.add('turning');
@@ -222,215 +193,211 @@ function flipTo(target){
     void s.offsetWidth;
     s.classList.toggle('flipped', target > flipped);
     flipped += target > flipped ? 1 : -1;
-    pos = flippedToPos(flipped);
-    render();  s.style.zIndex = 400;
-    setTimeout(()=>{ s.classList.remove('turning'); zOrder(); step(); },
-      Math.abs(target-flipped) ? 260 : 1080);   // stagger fast when jumping far
+    render(); s.style.zIndex = 400;
+    setTimeout(()=>{
+      if (seq !== animSeq) return;
+      s.classList.remove('turning'); zOrder(); step();
+    }, Math.abs(target-flipped) ? 240 : 800);
   };
   step();
 }
-
-/* ---------------- single navigation ---------------- */
-function showSingle(p, dir){
-  p = Math.max(0, Math.min(LAST, p));
-  if (p === pos && singleEls[p].classList.contains('on')) return;
-  if (dir === undefined) dir = p > pos ? 1 : -1;
-  hint.classList.add('hide');
-  resetZoom();
-  const cur = singleEls[pos], nxt = singleEls[p];
-  hydrate(p);
-  if (cur !== nxt){
-    cur.classList.remove('on');
-    cur.classList.add(dir>0 ? 'exit-fwd' : 'exit-back');
-    setTimeout(()=>cur.classList.remove('exit-fwd','exit-back'), 520);
-  }
-  nxt.classList.remove('exit-fwd','exit-back');
-  nxt.classList.add(dir>0 ? 'enter-fwd' : 'enter-back');
-  void nxt.offsetWidth;                          // commit the start position
-  nxt.classList.remove('enter-fwd','enter-back');
-  nxt.classList.add('on');
-  pos = p; render();
-}
-
-/* ---------------- mode-agnostic API ---------------- */
-function go(dir){
-  if (mode === 'single') showSingle(pos + dir, dir);
-  else flipTo(flipped + dir);
-}
-function jumpToPage(n){
-  if (mode === 'single') showSingle(n === 0 ? 0 : n);
-  else flipTo(n === 0 ? 0 : spreadOfPage(n));
-}
-const next = () => go(1);
-const prev = () => go(-1);
+const next = () => flipTo(flipped+1);
+const prev = () => flipTo(flipped-1);
 
 nextBtn.addEventListener('click', next);
 prevBtn.addEventListener('click', prev);
-chips.forEach(c=>c.addEventListener('click', ()=> jumpToPage(+c.dataset.page)));
-
-/* click page halves: left half = next (RTL), right half = prev */
-book.addEventListener('click', e=>{
-  const r = book.getBoundingClientRect();
-  ((e.clientX - r.left) < r.width/2) ? next() : prev();
-});
-/* keyboard (RTL: ArrowLeft goes forward) */
+chips.forEach(c=>c.addEventListener('click', ()=>{
+  const page = +c.dataset.page;                 // jump so that page starts the spread
+  flipTo(page ? spreadOfPage(page) : 0);
+}));
 window.addEventListener('keydown', e=>{
-  if (e.key==='ArrowLeft') next();
+  if (e.key==='ArrowLeft') next();              // RTL: left goes forward
   else if (e.key==='ArrowRight') prev();
-  else if (e.key==='Home') jumpToPage(0);
-  else if (e.key==='End') { mode==='single' ? showSingle(LAST) : flipTo(SHEETS); }
+  else if (e.key==='Home') flipTo(0);
+  else if (e.key==='End') flipTo(SHEETS);
 });
-
-/* ---------------- zoom (single mode) ----------------
-   Floor plans carry 2-3mm dimension text; on a phone the page has to be
-   magnifiable or the numbers are simply lost. */
-let zScale = 1, zx = 0, zy = 0;
-function zoomer(){ return singleEls[pos].querySelector('.zoomer'); }
-function applyZoom(anim){
-  const z = zoomer(); if (!z) return;
-  z.style.transition = anim ? 'transform .28s ease' : 'none';
-  z.style.transform = `translate(${zx}px, ${zy}px) scale(${zScale})`;
-  singleEls[pos].classList.toggle('zoomed', zScale > 1.01);
-}
-function resetZoom(){ zScale = 1; zx = zy = 0; applyZoom(false); }
-function clampPan(){
-  const z = zoomer(); if (!z) return;
-  const r = z.getBoundingClientRect(), s = single.getBoundingClientRect();
-  const mx = Math.max(0, (r.width  - s.width )/2);
-  const my = Math.max(0, (r.height - s.height)/2);
-  zx = Math.max(-mx, Math.min(mx, zx));
-  zy = Math.max(-my, Math.min(my, zy));
-}
-function zoomAt(scale, cx, cy){
-  const s = single.getBoundingClientRect();
-  const px = cx - s.left - s.width/2, py = cy - s.top - s.height/2;
-  const k = scale / zScale;
-  zx = (zx - px) * k + px;  zy = (zy - py) * k + py;
-  zScale = scale;
-  clampPan(); applyZoom(true);
-}
-function toggleZoom(cx, cy){
-  if (zScale > 1.01) { resetZoom(); }
-  else zoomAt(2.6, cx, cy);
-}
-single.addEventListener('dblclick', e => toggleZoom(e.clientX, e.clientY));
-
-/* ---------------- touch: swipe, pinch, pan ---------------- */
-let tx=null, ty=null, moved=false, panning=false, pinch=null, lastTap=0;
-const dist = t => Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
-const mid  = t => [(t[0].clientX+t[1].clientX)/2, (t[0].clientY+t[1].clientY)/2];
-
-window.addEventListener('touchstart', e=>{
-  if (e.touches.length === 2 && mode === 'single'){
-    pinch = { d: dist(e.touches), s: zScale };
-    tx = ty = null; return;
-  }
-  tx = e.touches[0].clientX; ty = e.touches[0].clientY; moved = false;
-  panning = mode === 'single' && zScale > 1.01;
-},{passive:true});
-
-window.addEventListener('touchmove', e=>{
-  if (pinch && e.touches.length === 2){
-    const [cx, cy] = mid(e.touches);
-    zoomAt(Math.max(1, Math.min(4, pinch.s * dist(e.touches) / pinch.d)), cx, cy);
-    if (e.cancelable) e.preventDefault();
-    return;
-  }
-  if (tx === null) return;
-  const dx = e.touches[0].clientX - tx, dy = e.touches[0].clientY - ty;
-  if (Math.abs(dx) > 8 || Math.abs(dy) > 8) moved = true;
-  if (panning){
-    zx += dx; zy += dy; tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-    clampPan(); applyZoom(false);
-    if (e.cancelable) e.preventDefault();
-  }
-},{passive:false});
-
-window.addEventListener('touchend', e=>{
-  if (pinch){ pinch = null; if (zScale < 1.05) resetZoom(); return; }
-  if (tx === null) return;
-  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
-
-  if (!panning && Math.abs(dx) > 46 && Math.abs(dx) > Math.abs(dy)*1.4){
-    (dx > 0) ? next() : prev();                 // swipe right = forward (RTL)
-  } else if (!moved && mode === 'single'){
-    const now = Date.now();
-    if (now - lastTap < 300){                   // double-tap to zoom
-      toggleZoom(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-      lastTap = 0;
-    } else {
-      lastTap = now;
-      const t = e.changedTouches[0];
-      setTimeout(()=>{                          // single tap: tap-to-turn
-        if (lastTap !== now || zScale > 1.01) return;
-        const r = single.getBoundingClientRect();
-        ((t.clientX - r.left) < r.width/2) ? next() : prev();
-      }, 300);
-    }
-  }
-  tx = ty = null; panning = false;
-},{passive:true});
-
-/* ---------------- fullscreen ---------------- */
 document.getElementById('fsBtn').addEventListener('click', ()=>{
   if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
   else document.exitFullscreen?.();
 });
 
-/* ---------------- responsive: fit + mode switching ---------------- */
+/* ---------------- view transform: fit + zoom + pan ----------------
+   The wrap carries fit*zoom so the book element itself stays in its own
+   437x650-per-page coordinate space, which the sheet geometry depends on. */
 const BASE_W = 437*2, BASE_H = 650;
-const PAGE_RATIO = 867/1300;                  // w/h of the page scans
+let fitScale = 1, zoom = 1, panX = 0, panY = 0;
+
+function applyWrap(anim){
+  wrap.style.transition = anim ? 'transform .28s ease' : 'none';
+  // -50% centres the absolutely-positioned wrap; scale then runs about its own centre
+  wrap.style.transform  =
+    `translate(-50%,-50%) translate(${panX}px,${panY}px) scale(${fitScale*zoom})`;
+}
+function clampPan(){
+  const w = BASE_W*fitScale*zoom, h = BASE_H*fitScale*zoom;
+  const mx = Math.max(0, (w - stage.clientWidth )/2);
+  const my = Math.max(0, (h - stage.clientHeight)/2);
+  panX = Math.max(-mx, Math.min(mx, panX));
+  panY = Math.max(-my, Math.min(my, panY));
+}
 function fit(){
-  if (mode === 'spread'){
-    const aw = stage.clientWidth - 28, ah = stage.clientHeight - 26;
-    const sc = Math.min(aw/BASE_W, ah/BASE_H, 1.18);
-    wrap.style.transform = `scale(${sc})`;
-  } else {
-    // largest page box that fits the stage on both axes
-    const aw = stage.clientWidth - 12, ah = stage.clientHeight - 12;
-    const h = Math.max(80, Math.min(ah, aw / PAGE_RATIO));
-    single.style.setProperty('--sw', `${Math.round(h * PAGE_RATIO)}px`);
-    single.style.setProperty('--sh', `${Math.round(h)}px`);
+  const aw = stage.clientWidth - 20, ah = stage.clientHeight - 20;
+  fitScale = Math.min(aw/BASE_W, ah/BASE_H, 1.18);
+  clampPan(); applyWrap(false);
+}
+function zoomAt(z, cx, cy){
+  z = Math.max(1, Math.min(4, z));
+  const r = stage.getBoundingClientRect();
+  const px = cx - r.left - r.width/2, py = cy - r.top - r.height/2;
+  const k = z / zoom;
+  panX = (panX - px)*k + px;  panY = (panY - py)*k + py;
+  zoom = z;
+  if (zoom === 1) { panX = panY = 0; }
+  clampPan(); applyWrap(true);
+  document.body.classList.toggle('zoomed', zoom > 1.01);
+}
+const resetZoom = () => zoomAt(1, 0, 0);
+
+window.addEventListener('resize', fit);
+window.addEventListener('orientationchange', ()=> setTimeout(fit, 120));
+
+/* ---------------- dragging the paper ----------------
+   Grab the left page to turn forward, the right page to turn back; the sheet
+   tracks the pointer across the half-width of the book and settles to
+   whichever side it is closest to on release. */
+const pts = new Map();
+let drag = null, pinch = null, pan = null;
+
+function sheetUnderDrag(forward){
+  if (forward)  return flipped < SHEETS ? sheets[flipped]   : null;
+  return flipped > 0 ? sheets[flipped-1] : null;
+}
+function startDrag(x){
+  const r = book.getBoundingClientRect();
+  if (!r.width) return;
+  const forward = (x - r.left) < r.width/2;   // left half = forward (RTL)
+  const sheet = sheetUnderDrag(forward);
+  if (!sheet) return;
+  drag = { sheet, forward, x0:x, w:r.width/2, progress:0, moved:false };
+  sheet.classList.add('turning','no-anim');
+  sheet.style.zIndex = 400;
+}
+function moveDrag(x){
+  if (!drag) return;
+  const dx = x - drag.x0;
+  if (Math.abs(dx) > 6) drag.moved = true;
+  const p = drag.forward ? dx/drag.w : -dx/drag.w;
+  drag.progress = Math.max(0, Math.min(1, p));
+  const angle = drag.forward ? 180*drag.progress : 180*(1-drag.progress);
+  drag.sheet.style.transform = `rotateY(${angle}deg)`;
+}
+function endDrag(){
+  if (!drag) return;
+  const { sheet, forward, progress, moved } = drag;
+  drag = null;
+  sheet.classList.remove('no-anim');          // hand control back to the CSS transition
+  const commit = progress > 0.38;
+  if (commit){
+    sheet.classList.toggle('flipped', forward);
+    flipped += forward ? 1 : -1;
   }
+  sheet.style.transform = '';                  // animates from the dragged angle to the class angle
+  render(); sheet.style.zIndex = 400;
+  setTimeout(()=>{ sheet.classList.remove('turning'); zOrder(); }, 820);
+  return moved;
 }
 
-/* A two-page spread only earns its keep when each page still lands big enough
-   to read a floor plan. On a phone upright that is ~180px per page, and on a
-   phone on its side ~173px — both unusable — so those drop to one page.
-   Tablets in portrait go single for the same reason; landscape keeps the book. */
-const wantsSingle = window.matchMedia(
-  '(orientation: portrait) and (max-width: 900px),' +
-  '(orientation: landscape) and (max-height: 500px)');
+const dist = a => Math.hypot(a[0].x-a[1].x, a[0].y-a[1].y);
+const mid  = a => [(a[0].x+a[1].x)/2, (a[0].y+a[1].y)/2];
 
-function setMode(m){
-  if (m === mode) return;
-  mode = m;
-  document.body.classList.toggle('single-mode', m === 'single');
-  hintText.textContent = m === 'single'
-    ? 'اسحب للتنقل · دوس مرتين للتكبير'
-    : 'اضغط على الصفحة أو اسحب لتقليب الكتاب 📖';
-  if (m === 'single'){
-    singleEls.forEach(el=>el.classList.remove('on','exit-fwd','exit-back'));
-    resetZoom();
-    singleEls[pos].classList.add('on');
-    hydrate(pos);
-  } else {
-    // rebuild the sheet stack at the position the reader had reached
-    const target = posToFlipped(pos);
-    sheets.forEach((s,i)=>s.classList.toggle('flipped', i < target));
-    flipped = target; animating = false;
+stage.addEventListener('pointerdown', e=>{
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  stage.setPointerCapture?.(e.pointerId);
+  pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  hint.classList.add('hide');
+
+  if (pts.size === 2){
+    if (drag) endDrag();                       // two fingers: stop turning, start pinching
+    const a = [...pts.values()];
+    pinch = { d: dist(a) || 1, z: zoom };
+    pan = null;
+    return;
   }
-  render(); fit();
-}
-const syncMode = () => setMode(wantsSingle.matches ? 'single' : 'spread');
+  if (pts.size === 1){
+    if (zoom > 1.01) pan = { x:e.clientX, y:e.clientY, moved:false };
+    else if (!animating) startDrag(e.clientX);
+  }
+},{passive:true});
 
-window.addEventListener('resize', ()=>{ syncMode(); fit(); });
-window.addEventListener('orientationchange', ()=> setTimeout(()=>{ syncMode(); fit(); }, 120));
-wantsSingle.addEventListener?.('change', syncMode);
+stage.addEventListener('pointermove', e=>{
+  if (!pts.has(e.pointerId)) return;
+  pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  if (pinch && pts.size >= 2){
+    const a = [...pts.values()].slice(0,2);
+    const [cx, cy] = mid(a);
+    zoomAt(pinch.z * dist(a) / pinch.d, cx, cy);
+    return;
+  }
+  if (pan){
+    panX += e.clientX - pan.x; panY += e.clientY - pan.y;
+    if (Math.abs(e.clientX-pan.x) > 2 || Math.abs(e.clientY-pan.y) > 2) pan.moved = true;
+    pan.x = e.clientX; pan.y = e.clientY;
+    clampPan(); applyWrap(false);
+    return;
+  }
+  moveDrag(e.clientX);
+},{passive:true});
+
+function onUp(e){
+  const had = pts.delete(e.pointerId);
+  if (!had) return;
+  stage.releasePointerCapture?.(e.pointerId);
+
+  if (pinch){
+    if (pts.size < 2){ pinch = null; if (zoom < 1.06) resetZoom(); }
+    return;
+  }
+  if (pan){
+    const tap = !pan.moved; pan = null;
+    if (tap && e.detail !== 2) return;          // a tap while zoomed does nothing
+    return;
+  }
+  if (drag){
+    const moved = endDrag();
+    if (!moved) handleTap(e.clientX, e.clientY, e.pointerType);
+  }
+}
+stage.addEventListener('pointerup', onUp,{passive:true});
+stage.addEventListener('pointercancel', onUp,{passive:true});
+
+/* Tap a page half to turn it. On touch the turn waits out the double-tap
+   window, otherwise a double-tap-to-zoom would turn two pages on its way. */
+let tapTimer = null, lastTapAt = 0;
+function turnAt(x){
+  const r = book.getBoundingClientRect();
+  ((x - r.left) < r.width/2) ? next() : prev();
+}
+function handleTap(x, y, type){
+  if (type === 'mouse'){ if (zoom <= 1.01) turnAt(x); return; }
+  const now = performance.now();
+  if (now - lastTapAt < 300){                   // second tap: magnify instead
+    clearTimeout(tapTimer); tapTimer = null; lastTapAt = 0;
+    zoom > 1.01 ? resetZoom() : zoomAt(2.4, x, y);
+    return;
+  }
+  lastTapAt = now;
+  tapTimer = setTimeout(()=>{ tapTimer = null; if (zoom <= 1.01) turnAt(x); }, 300);
+}
+
+/* wheel magnifies on a laptop, where there is no pinch */
+stage.addEventListener('wheel', e=>{
+  e.preventDefault();
+  zoomAt(zoom * (e.deltaY < 0 ? 1.12 : 1/1.12), e.clientX, e.clientY);
+},{passive:false});
 
 /* ---------------- boot ---------------- */
-singleEls[0].classList.add('on');
-zOrder(); syncMode(); render(); fit();
+zOrder(); render(); fit();
 setTimeout(()=>hint.classList.add('hide'), 6000);
-[1,2,3].forEach(n=>{const im=new Image(); im.src=pageSrc(n);});
+[1,2,3].forEach(i=>{const im=new Image(); im.src=pageSrc(PAGES[i-1]);});
 })();

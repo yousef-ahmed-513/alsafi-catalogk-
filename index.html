@@ -46,10 +46,16 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
    min-height:0 is load-bearing: a flex item defaults to min-height:auto and
    refuses to shrink below its content, so without it the 650px book keeps the
    stage at full height and pushes the controls off any short screen. */
-.stage{flex:1;min-height:0;min-width:0;display:grid;place-items:center;
-  perspective:2600px;position:relative;z-index:2}
-.book-wrap{position:relative;transition:transform .5s ease}
-.book{position:relative;width:calc(var(--pw)*2);height:var(--ph);transform-style:preserve-3d}
+.stage{flex:1;min-height:0;min-width:0;overflow:hidden;
+  perspective:2600px;position:relative;z-index:2;
+  touch-action:none}   /* pages are dragged by pointer; no native scroll/zoom */
+/* Absolutely centred rather than grid-centred: the book is wider than a phone
+   before it is scaled down, and grid alignment clamps an overflowing item to
+   the start edge — which in RTL is the right — throwing it off-screen left. */
+.book-wrap{position:absolute;top:50%;left:50%;
+  width:calc(var(--pw)*2);height:var(--ph);will-change:transform}
+.book{position:relative;width:calc(var(--pw)*2);height:var(--ph);transform-style:preserve-3d;
+  transition:transform .8s cubic-bezier(.36,.04,.22,1)}
 /* table shadow */
 .book::after{content:"";position:absolute;inset-inline:6%;bottom:-34px;height:50px;border-radius:50%;
   background:radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.55), transparent 70%);filter:blur(6px);z-index:-1}
@@ -57,7 +63,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 /* sheets rest on LEFT half (Arabic book, spine on the right/center) */
 .sheet{position:absolute;top:0;left:0;width:var(--pw);height:var(--ph);
   transform-style:preserve-3d;transform-origin:right center;
-  transition:transform 1.05s cubic-bezier(.36,.04,.22,1)}
+  transition:transform .78s cubic-bezier(.36,.04,.22,1)}
+/* driven directly rather than eased: while a finger is on the paper, and
+   while a chip jump snaps across many sheets at once */
+.sheet.no-anim{transition:none}
 .sheet.flipped{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
   transform:translateZ(0);will-change:transform;background:#f7f3ea}
@@ -107,37 +116,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 .closing .cover-copy h2{font-weight:800;font-size:26px;color:#f1e7d2;margin:0 0 14px}
 .closing .cover-copy p{margin:6px 0;color:#dfe6f2;font-size:14.5px}
 .closing .cover-copy .phone{direction:ltr;font-family:Marcellus,serif;font-size:20px;color:var(--gold2);letter-spacing:.08em}
-
-/* ===== Single-page mode (phone, portrait) ===== */
-.single{position:absolute;inset:0;display:none;overflow:hidden;touch-action:pan-y}
-body.single-mode .single{display:block}
-body.single-mode .book-wrap{display:none}
-body.single-mode .stage{perspective:none}
-.spage{position:absolute;inset:0;display:grid;place-items:center;padding:6px;
-  opacity:0;pointer-events:none;transform:translateX(0) scale(.96);
-  transition:transform .45s cubic-bezier(.36,.04,.22,1),opacity .35s}
-.spage.on{opacity:1;pointer-events:auto;transform:none}
-/* RTL: going forward moves everything rightward — the new page enters from
-   the left, the old one leaves to the right */
-.spage.enter-fwd {transform:translateX(-14%) scale(.96);opacity:0;transition:none}
-.spage.enter-back{transform:translateX( 14%) scale(.96);opacity:0;transition:none}
-.spage.exit-fwd  {transform:translateX( 14%) scale(.96);opacity:0}
-.spage.exit-back {transform:translateX(-14%) scale(.96);opacity:0}
-/* --sw/--sh are measured in JS from the stage: CSS alone can't fit a fixed
-   ratio inside a box on both axes without hitting the aspect-ratio/max-width
-   precedence rule, and exact px also give the zoom exact pan limits */
-.spage .zoomer{position:relative;width:var(--sw,60%);height:var(--sh,80%);
-  display:grid;place-items:center;border-radius:10px;
-  box-shadow:0 18px 50px rgba(0,0,0,.55);
-  transform-origin:center center;will-change:transform}
-.spage img{width:100%;height:100%;object-fit:contain;display:block;
-  border-radius:inherit;user-select:none;-webkit-user-drag:none}
-.spage.zoomed{touch-action:none}
-/* cover / closing faces reuse the leather markup at the same page size */
-.spage .zoomer.sheetish{overflow:hidden}
-.spage .zoomer.sheetish .leather{border-radius:inherit}
-.spage .zoomer.sheetish .leather{border-radius:12px}
-.spage.missing::before{content:"⌘";color:#c9b78f;font-size:34px}
 
 /* ===== Bottom bar ===== */
 .bottombar{z-index:5;padding:10px 16px 16px;display:flex;flex-direction:column;gap:10px;align-items:center}
@@ -225,11 +203,9 @@ body.single-mode .stage{perspective:none}
       <!-- sheets injected by JS -->
     </div>
   </div>
-  <!-- single-page view (phone portrait); pages injected by JS -->
-  <div class="single" id="single"></div>
 </main>
 
-<div class="hint" id="hint"><span id="hintText">اضغط على الصفحة أو اسحب لتقليب الكتاب 📖</span></div>
+<div class="hint" id="hint"><span id="hintText">اسحب الورقة بإصبعك لتقليب الكتاب · باعد بإصبعين للتكبير 📖</span></div>
 
 <footer class="bottombar">
   <div class="progress"><i id="progressFill"></i></div>

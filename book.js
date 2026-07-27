@@ -23,20 +23,30 @@
    it, each section starts on a right-hand page and ends on a left-hand one.
    Unflipped sheets rest on LEFT half; flipping rotates them to RIGHT. */
 
-const pageSrc = n => `p${String(n).padStart(2,'0')}.jpg`;   // images sit next to index.html
 const COVER_ART = 'cover-art.jpg';            // Higgsfield leather art (optional, CSS fallback)
+// a number means pNN.jpg (images sit next to index.html); a string is a filename
+const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
 
 /* ---------------- running order ----------------
-   PAGES is the single source of truth for what the book contains and in what
-   order. Sections must stay a whole number of spreads long (an even count)
-   or everything after them straddles a spread — see the header note. */
+   The single source of truth: what the book contains, in what order, and
+   what the section chips say. Two rules when editing it:
+     • keep every section an even number of pages, or every section after it
+       straddles a spread instead of starting on a right-hand page;
+     • units run 01, 02, 03, 04 then the studios. The scans are NOT numbered
+       in that order — pNN.jpg holds D-03, D-04, D-01, D-02, S01, S02 per
+       floor — which is why each floor below reads 4,5,2,3,6,7 and not 2..7.
+
+   The shops are ready to slot in at the end of the mezzanine; uncomment the
+   line once s01.jpg..s04.jpg are in the repo, or the four pages render as
+   the missing-image placeholder.  */
 const SECTIONS = [
   { key:'poster',    label:'البوستر',   pages:[1] },
-  { key:'mezzanine', label:'الميزانين', pages:[2,3,4,5,6,7] },
-  { key:'floor1',    label:'الدور 1',   pages:[8,9,10,11,12,13] },
-  { key:'floor2',    label:'الدور 2',   pages:[14,15,16,17,18,19] },
-  { key:'floor3',    label:'الدور 3',   pages:[20,21,22,23,24,25] },
-  { key:'floor4',    label:'الدور 4',   pages:[26,27,28,29,30,31] },
+  { key:'mezzanine', label:'الميزانين', pages:[4,5,2,3,6,7] },
+  // { key:'shops',  label:'المحلات',   pages:['s01.jpg','s02.jpg','s03.jpg','s04.jpg'] },
+  { key:'floor1',    label:'الدور 1',   pages:[10,11,8,9,12,13] },
+  { key:'floor2',    label:'الدور 2',   pages:[16,17,14,15,18,19] },
+  { key:'floor3',    label:'الدور 3',   pages:[22,23,20,21,24,25] },
+  { key:'floor4',    label:'الدور 4',   pages:[28,29,26,27,30,31] },
   { key:'prices',    label:'الأسعار',   pages:[32] },
 ];
 const PAGES = SECTIONS.flatMap(s => s.pages);
@@ -46,7 +56,7 @@ const TOTAL_PAGES = PAGES.length;
 const faces = [];
 faces.push({type:'cover'});                   // face 0
 faces.push({type:'blank'});                   // face 1  — inside front cover
-PAGES.forEach((n,i)=> faces.push({type:'img', src:pageSrc(n), page:i+1}));
+PAGES.forEach((v,i)=> faces.push({type:'img', src:srcOf(v), page:i+1}));
 faces.push({type:'blank'});                   // inside back cover
 faces.push({type:'closing'});                 // back cover
 // pad to an even count so every sheet has 2 faces, keeping the closing face last
@@ -69,7 +79,18 @@ const fill    = document.getElementById('progressFill');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const hint    = document.getElementById('hint');
-const chips   = [...document.querySelectorAll('.chip')];
+
+/* Section chips are generated from SECTIONS so their page numbers can never
+   drift out of step with the running order when pages are added or moved. */
+const chipBar = document.getElementById('chips');
+let seen = 0;
+chipBar.innerHTML =
+  `<button class="chip" type="button" data-page="0">الغلاف</button>` +
+  SECTIONS.map(s => {
+    const start = seen + 1; seen += s.pages.length;
+    return `<button class="chip" type="button" data-page="${start}">${s.label}</button>`;
+  }).join('');
+const chips = [...chipBar.querySelectorAll('.chip')];
 
 function faceHTML(f){
   if (f.type === 'img')
@@ -140,7 +161,7 @@ function activeChip(){
 }
 function preload(){
   const from = Math.max(1, 2*flipped-4), to = Math.min(TOTAL_PAGES, 2*flipped+3);
-  for (let n=from;n<=to;n++){ const im=new Image(); im.src = pageSrc(PAGES[n-1]); }
+  for (let n=from;n<=to;n++){ const im=new Image(); im.src = srcOf(PAGES[n-1]); }
 }
 function zOrder(){
   for (let i=0;i<SHEETS;i++){
@@ -399,5 +420,5 @@ stage.addEventListener('wheel', e=>{
 /* ---------------- boot ---------------- */
 zOrder(); render(); fit();
 setTimeout(()=>hint.classList.add('hide'), 6000);
-[1,2,3].forEach(i=>{const im=new Image(); im.src=pageSrc(PAGES[i-1]);});
+[1,2,3].forEach(i=>{const im=new Image(); im.src=srcOf(PAGES[i-1]);});
 })();

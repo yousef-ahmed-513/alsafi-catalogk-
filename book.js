@@ -9,7 +9,7 @@
    Unflipped sheets rest on LEFT half; flipping rotates them to RIGHT. */
 
 const TOTAL_PAGES = 32;                       // p01..p32
-const pageSrc = n => `pages/p${String(n).padStart(2,'0')}.jpg`;
+const pageSrc = n => `p${String(n).padStart(2,'0')}.jpg`;   // images sit next to index.html
 
 // Build the ordered face list
 const faces = [];

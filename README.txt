@@ -12,10 +12,14 @@ Save the Higgsfield leather cover image as: cover-art.jpg
 and place it next to index.html. If absent, an elegant CSS cover shows.
 
 PAGE FILES:
-p01.jpg .. p32.jpg sit next to index.html (not in a subfolder).
-p01 = poster, p02-p07 = mezzanine, p08-p13 / p14-p19 / p20-p25 / p26-p31
-= floors 1-4, p32 = prices. book.js relies on that grouping to keep each
-section on its own spread.
+p01.jpg .. p32.jpg and s01.jpg .. s04.jpg sit next to index.html (not in a
+subfolder). p01 = poster, p02-p07 = mezzanine, p08-p13 / p14-p19 / p20-p25 /
+p26-p31 = floors 1-4, p32 = prices, s01-s04 = the mezzanine shops.
+
+Careful: the scans are NOT numbered in reading order. Each floor's six
+files hold D-03, D-04, D-01, D-02, S01, S02, so SECTIONS in book.js lists
+them as 4,5,2,3,6,7 to make the units read 01, 02, 03, 04 then the studios.
+All pages are 867x1300; new pages should match so they do not crop.
 
 CONTROLS:
 - Click page / swipe / arrow keys to flip (Arabic direction).

@@ -8,12 +8,11 @@
    dimension text stays readable when the book is scaled down on a phone.
 
    Faces (spread reading order):
-   0     = leather cover (front)
-   1     = inside front cover (blank leather)
-   2     = p01 (TALEEN poster)
-   3..33 = p02..p32
-   34    = inside back cover (blank leather)
-   35    = closing face (back cover)
+   0        = leather cover (front)
+   1        = inside front cover (blank leather)
+   2..N+1   = the catalogue pages, in SECTIONS order
+   N+2      = inside back cover (blank leather)
+   N+3      = closing face (back cover)
    Sheet i front = face 2i, back = face 2i+1  (cover sheet is i=0)
    A spread shows face 2f-1 on the RIGHT and face 2f on the LEFT.
 
@@ -36,13 +35,14 @@ const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` :
        in that order — pNN.jpg holds D-03, D-04, D-01, D-02, S01, S02 per
        floor — which is why each floor below reads 4,5,2,3,6,7 and not 2..7.
 
-   The shops are ready to slot in at the end of the mezzanine; uncomment the
-   line once s01.jpg..s04.jpg are in the repo, or the four pages render as
-   the missing-image placeholder.  */
+   The shops are mezzanine retail, so they close out the mezzanine. They were
+   supplied as ~2MB PNGs on a grey mat at four different sizes; s01..s04.jpg
+   are those pages cropped to their own frame and normalised to 867x1300 to
+   match p01..p32.  */
 const SECTIONS = [
   { key:'poster',    label:'البوستر',   pages:[1] },
   { key:'mezzanine', label:'الميزانين', pages:[4,5,2,3,6,7] },
-  // { key:'shops',  label:'المحلات',   pages:['s01.jpg','s02.jpg','s03.jpg','s04.jpg'] },
+  { key:'shops',     label:'المحلات',   pages:['s01.jpg','s02.jpg','s03.jpg','s04.jpg'] },
   { key:'floor1',    label:'الدور 1',   pages:[10,11,8,9,12,13] },
   { key:'floor2',    label:'الدور 2',   pages:[16,17,14,15,18,19] },
   { key:'floor3',    label:'الدور 3',   pages:[22,23,20,21,24,25] },

@@ -25,6 +25,16 @@ The PHONE and TAGLINE constants at the top of book.js. TAGLINE sits under
 the mark on all four brand surfaces -- both covers and both logo pages --
 so it only needs changing once.
 
+STORY CHAPTERS:
+The STORY array in book.js holds seven chapters, one full spread each,
+threaded before every section (mezzanine, shops, floors 1-4, prices) so the
+catalogue reads as one narrative: arrival in Salalah, street life, the
+hotel-suite floors, the khareef, the frankincense heritage, the summit, and
+the investment case. Right page = chapter text; left page = pull-quote and
+three facts. Edit the text there; a chapter is always 2 pages, which keeps
+every section opening on a right-hand page. Chips open the chapter spread;
+one flip lands on the section's first unit.
+
 PAGE FILES:
 p01.jpg .. p32.jpg and s01.jpg .. s04.jpg sit next to index.html (not in a
 subfolder). p01 = poster, p02-p07 = mezzanine, p08-p13 / p14-p19 / p20-p25 /

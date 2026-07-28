@@ -28,6 +28,51 @@ const COVER_ART = 'cover-art.jpg';            // Higgsfield leather art (optiona
 const LOGO = 'logo.svg';
 const PHONE = '+968 9566 8000';
 const TAGLINE = 'INVEST IN THE BEST';         // sits under the mark wherever it appears
+
+/* ---------------- the story ----------------
+   Seven chapters, one full spread each, threaded between the sections so the
+   catalogue reads as a single narrative: arrival in Salalah, life at street
+   level, the hotel-suite floors, the khareef, the frankincense heritage, the
+   summit, and finally the investment case that hands over to the price list.
+   Right page = chapter text. Left page = pull-quote over a watermark of the
+   mark, grounded by three facts taken from the catalogue itself. */
+const STORY = [
+  { kicker:'الفصل الأول',  title:'حيث يبدأ المطر حكايته',
+    body:'في صلالة، حيث يعانق ضباب الخريف جبال ظفار ويهبّ نسيم البحر محمّلًا بعبق اللبان، يرتفع تالين — عنوان جديد للسكن الراقي في قلب المدينة، على خطوات من جراند مول والسعادة.',
+    en:'WHERE THE MONSOON BEGINS ITS TALE',
+    quote:'مبنى واحد… يختصر صلالة كلها',
+    stats:[['2 دقيقة','إلى جراند مول صلالة'],['13 دقيقة','إلى شاطئ الحافة'],['15 دقيقة','إلى مطار صلالة']] },
+  { kicker:'الفصل الثاني', title:'الحياة عند مستوى الشارع',
+    body:'أربعة محلات بواجهات مضيئة تستقبل المدينة صباحًا ومساءً؛ مقهى يفوح منه الهيل، ومعرض يلمع زجاجه — حياة كاملة تنبض تحت بيتك، وميزانين يعلوها بهدوء.',
+    en:'LIFE AT STREET LEVEL',
+    quote:'واجهة تليق باسمك التجاري',
+    stats:[['4','محلات بواجهات زجاجية'],['93 م²','أكبر مساحة تجارية'],['2 دقيقة','من جراند مول']] },
+  { kicker:'الفصل الثالث', title:'أجنحة بروح الفندق',
+    body:'شُقق صُمّمت كأجنحة فندقية: تشطيبات راقية، أثاث فاخر منتقى بعناية، وإضاءة دافئة تشبه ترحيب الفنادق الكبرى — لتسكن كما لو كنت ضيفًا دائمًا لا يغادر.',
+    en:'SUITES WITH A HOTEL SOUL',
+    quote:'كل تفصيلة… على ذوق ضيف لا يرضى إلا بالأفضل',
+    stats:[['91 م²','أكبر شقة مزدوجة'],['2','غرفتا نوم وصالة رحبة'],['34 م²','استوديوهات أنيقة']] },
+  { kicker:'الفصل الرابع', title:'الخريف على عتبة بيتك',
+    body:'من نوافذ الدور الثاني يتحوّل الصيف إلى لوحة: سحب تنساب على الجبال، رذاذ ناعم على الزجاج، وخضرة لا تراها إلا في صلالة. موسم الخريف بأكمله… إطلالة يومية.',
+    en:'THE KHAREEF AT YOUR WINDOW',
+    quote:'أن تشرب قهوتك والضباب يمرّ من جانبك',
+    stats:[['4 أشهر','من الضباب والخضرة'],['25°','صيف صلالة المعتدل'],['بلا ثمن','الإطلالة، كل صباح']] },
+  { kicker:'الفصل الخامس', title:'عبق اللبان',
+    body:'على هذه الأرض نبتت أشجار اللبان التي عرفها العالم قبل آلاف السنين. تالين يسكن المكان نفسه: أصالة ظفارية في العمارة، وكرم عُماني في التفاصيل.',
+    en:'THE SCENT OF FRANKINCENSE',
+    quote:'فخامة تُروى… لا تُشترى',
+    stats:[['أرض اللبان','تراث عالمي في ظفار'],['الجبال','خلف نافذتك'],['البحر','على مرمى نظرك']] },
+  { kicker:'الفصل السادس', title:'أقرب إلى السماء',
+    body:'في الدور الرابع يخفت صوت المدينة ويتّسع الأفق: الجبال من جهة، والبحر من أخرى، وهدوء لا يقطعه إلا أذان المغرب البعيد.',
+    en:'CLOSER TO THE SKY',
+    quote:'القمة ليست مكانًا… إنها إحساس',
+    stats:[['الرابع','الدور الأعلى سكنًا'],['روف','يتوّج المبنى'],['أفق','مفتوح بلا حدود']] },
+  { kicker:'الفصل الأخير', title:'استثمر في الأفضل',
+    body:'صلالة تنمو، وضيوف الخريف يعودون كل عام بأعداد أكبر. وحدة في تالين ليست مسكنًا فحسب — إنها أصل يعمل لصالحك: موقع لا يتكرر، وطابع فندقي، وطلب لا يهدأ.',
+    en:'INVEST IN THE BEST',
+    quote:'الأفضل… يبدأ من العنوان',
+    stats:[['40','وحدة سكنية'],['4','محلات تجارية'],['24 شهرًا','خطط سداد مريحة']] },
+];
 // a number means pNN.jpg (images sit next to index.html); a string is a filename
 const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
 
@@ -46,22 +91,31 @@ const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` :
    match p01..p32.  */
 const SECTIONS = [
   { key:'poster',    label:'البوستر',   pages:[1] },
-  { key:'mezzanine', label:'الميزانين', pages:[4,5,2,3,6,7] },
-  { key:'shops',     label:'المحلات',   pages:['s01.jpg','s02.jpg','s03.jpg','s04.jpg'] },
-  { key:'floor1',    label:'الدور 1',   pages:[10,11,8,9,12,13] },
-  { key:'floor2',    label:'الدور 2',   pages:[16,17,14,15,18,19] },
-  { key:'floor3',    label:'الدور 3',   pages:[22,23,20,21,24,25] },
-  { key:'floor4',    label:'الدور 4',   pages:[28,29,26,27,30,31] },
-  { key:'prices',    label:'الأسعار',   pages:[32] },
+  { key:'mezzanine', label:'الميزانين', story:0, pages:[4,5,2,3,6,7] },
+  { key:'shops',     label:'المحلات',   story:1, pages:['s01.jpg','s02.jpg','s03.jpg','s04.jpg'] },
+  { key:'floor1',    label:'الدور 1',   story:2, pages:[10,11,8,9,12,13] },
+  { key:'floor2',    label:'الدور 2',   story:3, pages:[16,17,14,15,18,19] },
+  { key:'floor3',    label:'الدور 3',   story:4, pages:[22,23,20,21,24,25] },
+  { key:'floor4',    label:'الدور 4',   story:5, pages:[28,29,26,27,30,31] },
+  { key:'prices',    label:'الأسعار',   story:6, pages:[32] },
 ];
-const PAGES = SECTIONS.flatMap(s => s.pages);
+/* A section with a story opens on a full chapter spread — right page then
+   left — before its own pages. A spread is 2 pages, so the even-count rule
+   that keeps every section starting on a right-hand page still holds. */
+const PAGES = SECTIONS.flatMap(s => [
+  ...(s.story != null ? [{story:s.story, side:'right'}, {story:s.story, side:'left'}] : []),
+  ...s.pages,
+]);
 const TOTAL_PAGES = PAGES.length;
 
 /* ---------------- face list ---------------- */
 const faces = [];
 faces.push({type:'cover'});                   // face 0
 faces.push({type:'logo'});                    // faces the poster: the brand mark
-PAGES.forEach((v,i)=> faces.push({type:'img', src:srcOf(v), page:i+1}));
+PAGES.forEach((v,i)=> faces.push(
+  typeof v === 'object'
+    ? {type:'story', ch:STORY[v.story], side:v.side, page:i+1}
+    : {type:'img', src:srcOf(v), page:i+1}));
 faces.push({type:'logo'});                    // faces the price list: the brand mark
 faces.push({type:'closing'});                 // back cover
 // pad to an even count so every sheet has 2 faces, keeping the closing face last
@@ -92,7 +146,8 @@ let seen = 0;
 chipBar.innerHTML =
   `<button class="chip" type="button" data-page="0">الغلاف</button>` +
   SECTIONS.map(s => {
-    const start = seen + 1; seen += s.pages.length;
+    const start = seen + 1;                       // chapter spread opens the section
+    seen += s.pages.length + (s.story != null ? 2 : 0);
     return `<button class="chip" type="button" data-page="${start}">${s.label}</button>`;
   }).join('');
 const chips = [...chipBar.querySelectorAll('.chip')];
@@ -129,6 +184,31 @@ function faceHTML(f){
         <p>صلالة — بالقرب من جراند مول والسعادة</p>
         <div class="year">TALEEN</div>
       </div></div>`;
+  if (f.type === 'story'){
+    const c = f.ch;
+    if (f.side === 'right')
+      return `<div class="leather story-page">
+        <div class="css-leather"></div>
+        <div class="frame"></div>
+        <div class="story-copy">
+          <div class="orn">— ◆ —</div>
+          <div class="kicker">${c.kicker}</div>
+          <h2>${c.title}</h2>
+          <p>${c.body}</p>
+          <div class="rule"></div>
+          <div class="en">${c.en}</div>
+        </div></div>`;
+    return `<div class="leather story-page">
+      <div class="css-leather"></div>
+      <img class="wm" src="${LOGO}" alt="" onerror="this.remove()">
+      <div class="frame"></div>
+      <div class="story-copy">
+        <blockquote>«${c.quote}»</blockquote>
+        <div class="stats">${c.stats.map(([v,l]) =>
+          `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}
+        </div>
+      </div></div>`;
+  }
   if (f.type === 'logo')
     // the two pages that would otherwise be blank leather — facing the poster
     // and facing the price list. Just the mark, large, nothing else.
@@ -185,7 +265,10 @@ function activeChip(){
 }
 function preload(){
   const from = Math.max(1, 2*flipped-4), to = Math.min(TOTAL_PAGES, 2*flipped+3);
-  for (let n=from;n<=to;n++){ const im=new Image(); im.src = srcOf(PAGES[n-1]); }
+  for (let n=from;n<=to;n++){
+    const v = PAGES[n-1];
+    if (typeof v !== 'object'){ const im=new Image(); im.src = srcOf(v); }   // story pages are HTML
+  }
 }
 function zOrder(){
   for (let i=0;i<SHEETS;i++){
@@ -444,5 +527,5 @@ stage.addEventListener('wheel', e=>{
 /* ---------------- boot ---------------- */
 zOrder(); render(); fit();
 setTimeout(()=>hint.classList.add('hide'), 6000);
-[1,2,3].forEach(i=>{const im=new Image(); im.src=srcOf(PAGES[i-1]);});
+[1,2,3].forEach(i=>{const v=PAGES[i-1]; if (typeof v!=='object'){const im=new Image(); im.src=srcOf(v);}});
 })();

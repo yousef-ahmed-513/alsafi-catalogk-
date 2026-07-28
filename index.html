@@ -134,6 +134,30 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   max-height:calc(var(--ph)*.52);object-fit:contain;border-radius:0;
   filter:drop-shadow(0 16px 38px rgba(0,0,0,.5))}
 .logo-page .tagline{font-size:15px;margin-top:26px;opacity:.95}
+
+/* ===== Story chapter spreads =====
+   Right page carries the chapter; left page answers with a pull-quote over a
+   watermark of the mark and three facts from the catalogue. No letter-spacing
+   on the Arabic — spaced-out Arabic visually severs the joined letters. */
+.story-page .story-copy{position:relative;z-index:2;text-align:center;padding:0 46px;
+  text-shadow:0 2px 16px rgba(0,0,0,.5)}
+.story-page .orn{color:rgba(232,201,138,.8);font-size:13px;margin-bottom:16px}
+.story-page .kicker{font-size:13px;font-weight:700;color:var(--gold2);margin-bottom:10px}
+.story-page h2{font-weight:800;font-size:27px;color:#f1e7d2;margin:0 0 18px;line-height:1.5}
+.story-page p{font-size:14.5px;line-height:2.05;color:#cfd8e6;font-weight:500;margin:0 0 22px}
+.story-copy .rule{width:64px;height:1px;margin:0 auto 18px;
+  background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
+.story-page .en{font-family:Marcellus,serif;font-size:10.5px;letter-spacing:.3em;
+  text-indent:.3em;color:rgba(232,201,138,.85);white-space:nowrap}
+.story-page .wm{position:absolute;width:82%;top:50%;left:50%;transform:translate(-50%,-54%);
+  opacity:.055;object-fit:contain;border-radius:0}
+.story-page blockquote{font-size:21.5px;font-weight:800;color:var(--gold2);
+  line-height:1.95;margin:0 0 34px}
+.story-page .stats{display:grid;gap:0}
+.story-page .stat{padding:13px 0}
+.story-page .stat + .stat{border-top:1px solid rgba(232,201,138,.18)}
+.story-page .stat .v{font-size:19px;font-weight:800;color:#f1e7d2}
+.story-page .stat .l{font-size:12px;color:#9fb0c8;margin-top:3px}
 .logo-page .fallback{display:none;text-align:center}
 .logo-page .brandmark.nomark .fallback{display:block}
 .logo-page .fallback h1{font-family:Marcellus,serif;font-weight:400;color:var(--gold2);

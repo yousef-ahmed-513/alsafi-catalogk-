@@ -23,6 +23,8 @@
    Unflipped sheets rest on LEFT half; flipping rotates them to RIGHT. */
 
 const COVER_ART = 'cover-art.jpg';            // Higgsfield leather art (optional, CSS fallback)
+const LOGO = 'logo.png';                      // brand mark for the end page (optional, CSS fallback)
+const PHONE = '+968 9566 8000';
 // a number means pNN.jpg (images sit next to index.html); a string is a filename
 const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
 
@@ -57,7 +59,7 @@ const faces = [];
 faces.push({type:'cover'});                   // face 0
 faces.push({type:'blank'});                   // face 1  — inside front cover
 PAGES.forEach((v,i)=> faces.push({type:'img', src:srcOf(v), page:i+1}));
-faces.push({type:'blank'});                   // inside back cover
+faces.push({type:'logo'});                    // faces the price list: the brand mark
 faces.push({type:'closing'});                 // back cover
 // pad to an even count so every sheet has 2 faces, keeping the closing face last
 if (faces.length % 2) faces.splice(faces.length-1, 0, {type:'blank'});
@@ -118,9 +120,24 @@ function faceHTML(f){
         <div class="house">FARIS</div>
         <div class="rule"></div>
         <h2>للتفاصيل والحجز</h2>
-        <p class="phone">+968 9288 0006</p>
+        <p class="phone">${PHONE}</p>
         <p>صلالة — بالقرب من جراند مول والسعادة</p>
         <div class="year">TALEEN TOWER</div>
+      </div></div>`;
+  if (f.type === 'logo')
+    // the page facing the price list; shows logo.png large, or a typeset
+    // FARIS wordmark if that file is not in the repo
+    return `<div class="leather logo-page">
+      <div class="css-leather"></div>
+      <div class="frame"></div>
+      <div class="brandmark">
+        <img class="mark" src="${LOGO}" alt="FARIS"
+             onerror="this.closest('.brandmark').classList.add('nomark');this.remove()">
+        <div class="fallback">
+          <div class="rule"></div>
+          <h1>FARIS</h1>
+          <div class="rule"></div>
+        </div>
       </div></div>`;
   return `<div class="leather"><div class="css-leather"></div><div class="frame"></div></div>`;
 }

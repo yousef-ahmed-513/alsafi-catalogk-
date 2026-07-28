@@ -7,9 +7,13 @@ DEPLOY ON VERCEL:
 2) vercel.com -> Add New -> Project -> drag the folder (or push to GitHub and import).
 3) Framework: Other. No build command. Deploy.
 
-OPTIONAL COVER ART:
-Save the Higgsfield leather cover image as: cover-art.jpg
-and place it next to index.html. If absent, an elegant CSS cover shows.
+OPTIONAL ARTWORK (both fall back to a CSS design if absent):
+  cover-art.jpg  leather art for the front and back covers
+  logo.png       the FARIS mark, shown large on the page facing the price
+                 list. Without it that page shows a typeset FARIS wordmark.
+
+CONTACT NUMBER:
+One place: the PHONE constant at the top of book.js.
 
 PAGE FILES:
 p01.jpg .. p32.jpg and s01.jpg .. s04.jpg sit next to index.html (not in a

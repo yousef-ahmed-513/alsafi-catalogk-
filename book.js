@@ -23,7 +23,9 @@
    Unflipped sheets rest on LEFT half; flipping rotates them to RIGHT. */
 
 const COVER_ART = 'cover-art.jpg';            // Higgsfield leather art (optional, CSS fallback)
-const LOGO = 'logo.png';                      // brand mark for the end page (optional, CSS fallback)
+// vector tracing of LOGO.png, so the mark stays sharp however large the book
+// is drawn or zoomed. Lowercase .svg — Vercel serves case-sensitively.
+const LOGO = 'logo.svg';
 const PHONE = '+968 9566 8000';
 // a number means pNN.jpg (images sit next to index.html); a string is a filename
 const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
@@ -57,7 +59,7 @@ const TOTAL_PAGES = PAGES.length;
 /* ---------------- face list ---------------- */
 const faces = [];
 faces.push({type:'cover'});                   // face 0
-faces.push({type:'blank'});                   // face 1  — inside front cover
+faces.push({type:'logo'});                    // faces the poster: the brand mark
 PAGES.forEach((v,i)=> faces.push({type:'img', src:srcOf(v), page:i+1}));
 faces.push({type:'logo'});                    // faces the price list: the brand mark
 faces.push({type:'closing'});                 // back cover
@@ -125,8 +127,8 @@ function faceHTML(f){
         <div class="year">TALEEN TOWER</div>
       </div></div>`;
   if (f.type === 'logo')
-    // the page facing the price list; shows logo.png large, or a typeset
-    // FARIS wordmark if that file is not in the repo
+    // the two pages that would otherwise be blank leather — facing the poster
+    // and facing the price list. Just the mark, large, nothing else.
     return `<div class="leather logo-page">
       <div class="css-leather"></div>
       <div class="frame"></div>

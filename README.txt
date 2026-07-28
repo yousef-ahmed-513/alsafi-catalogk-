@@ -7,10 +7,18 @@ DEPLOY ON VERCEL:
 2) vercel.com -> Add New -> Project -> drag the folder (or push to GitHub and import).
 3) Framework: Other. No build command. Deploy.
 
-OPTIONAL ARTWORK (both fall back to a CSS design if absent):
-  cover-art.jpg  leather art for the front and back covers
-  logo.png       the FARIS mark, shown large on the page facing the price
-                 list. Without it that page shows a typeset FARIS wordmark.
+BRAND MARK:
+LOGO.png is the supplied artwork (166x130). logo.svg is a vector tracing of
+it, and that is what the book draws -- the raster is far too small to show
+large without going soft. It fills the two pages that would otherwise be
+blank leather: facing the poster, and facing the price list. If a
+higher-resolution or vector original ever turns up, re-trace with potrace or
+just drop it in as logo.svg. Note the tiny subscript "S" of the wordmark is
+about 10x14px in the source, too coarse to trace cleanly, so it is omitted.
+
+OPTIONAL COVER ART:
+cover-art.jpg -- leather art for the front and back covers. Without it an
+elegant CSS cover shows.
 
 CONTACT NUMBER:
 One place: the PHONE constant at the top of book.js.

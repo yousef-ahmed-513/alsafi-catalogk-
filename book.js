@@ -106,7 +106,7 @@ function faceHTML(f){
       <img class="art" src="${COVER_ART}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="cover-copy">
-        <div class="house">FARIS</div>
+        <img class="house-mark" src="${LOGO}" alt="FARIS">
         <div class="rule"></div>
         <h1>TALEEN<br>TOWER</h1>
         <div class="ar-title">كتالوج الوحدات السكنية</div>
@@ -119,7 +119,7 @@ function faceHTML(f){
       <img class="art" src="${COVER_ART}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="cover-copy">
-        <div class="house">FARIS</div>
+        <img class="house-mark" src="${LOGO}" alt="FARIS">
         <div class="rule"></div>
         <h2>للتفاصيل والحجز</h2>
         <p class="phone">${PHONE}</p>
@@ -169,7 +169,8 @@ function counterText(){
 }
 function activeChip(){
   const pages = visiblePages(flipped);
-  let best = chips[0];                                  // الغلاف
+  // the back cover belongs to no section, so nothing is highlighted there
+  let best = flipped === SHEETS ? null : chips[0];      // الغلاف
   if (pages.length){
     const last = pages[pages.length-1];                 // deepest page on screen
     chips.forEach(c=>{ if (+c.dataset.page && +c.dataset.page <= last) best = c; });

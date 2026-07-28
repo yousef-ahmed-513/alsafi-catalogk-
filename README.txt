@@ -1,4 +1,4 @@
-TALEEN TOWER — Digital Flipbook (FARIS)
+TALEEN — Digital Flipbook (FARIS)
 =======================================
 Static site. No build step needed.
 
@@ -20,8 +20,10 @@ OPTIONAL COVER ART:
 cover-art.jpg -- leather art for the front and back covers. Without it an
 elegant CSS cover shows.
 
-CONTACT NUMBER:
-One place: the PHONE constant at the top of book.js.
+COPY:
+The PHONE and TAGLINE constants at the top of book.js. TAGLINE sits under
+the mark on all four brand surfaces -- both covers and both logo pages --
+so it only needs changing once.
 
 PAGE FILES:
 p01.jpg .. p32.jpg and s01.jpg .. s04.jpg sit next to index.html (not in a

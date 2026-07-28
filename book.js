@@ -27,6 +27,7 @@ const COVER_ART = 'cover-art.jpg';            // Higgsfield leather art (optiona
 // is drawn or zoomed. Lowercase .svg — Vercel serves case-sensitively.
 const LOGO = 'logo.svg';
 const PHONE = '+968 9566 8000';
+const TAGLINE = 'INVEST IN THE BEST';         // sits under the mark wherever it appears
 // a number means pNN.jpg (images sit next to index.html); a string is a filename
 const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
 
@@ -107,8 +108,9 @@ function faceHTML(f){
       <div class="frame"></div>
       <div class="cover-copy">
         <img class="house-mark" src="${LOGO}" alt="FARIS">
+        <div class="tagline">${TAGLINE}</div>
         <div class="rule"></div>
-        <h1>TALEEN<br>TOWER</h1>
+        <h1>TALEEN</h1>
         <div class="ar-title">كتالوج الوحدات السكنية</div>
         <div class="subtitle">صلالة · سلطنة عُمان</div>
         <div class="year">MMXXVI</div>
@@ -120,11 +122,12 @@ function faceHTML(f){
       <div class="frame"></div>
       <div class="cover-copy">
         <img class="house-mark" src="${LOGO}" alt="FARIS">
+        <div class="tagline">${TAGLINE}</div>
         <div class="rule"></div>
         <h2>للتفاصيل والحجز</h2>
         <p class="phone">${PHONE}</p>
         <p>صلالة — بالقرب من جراند مول والسعادة</p>
-        <div class="year">TALEEN TOWER</div>
+        <div class="year">TALEEN</div>
       </div></div>`;
   if (f.type === 'logo')
     // the two pages that would otherwise be blank leather — facing the poster
@@ -140,6 +143,7 @@ function faceHTML(f){
           <h1>FARIS</h1>
           <div class="rule"></div>
         </div>
+        <div class="tagline">${TAGLINE}</div>
       </div></div>`;
   return `<div class="leather"><div class="css-leather"></div><div class="frame"></div></div>`;
 }

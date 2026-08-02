@@ -29,49 +29,26 @@ const LOGO = 'logo.svg';
 const PHONE = '+968 9566 8000';
 const TAGLINE = 'INVEST IN THE BEST';         // sits under the mark wherever it appears
 
-/* ---------------- the story ----------------
-   Seven chapters, one full spread each, threaded between the sections so the
-   catalogue reads as a single narrative: arrival in Salalah, life at street
-   level, the hotel-suite floors, the khareef, the frankincense heritage, the
-   summit, and finally the investment case that hands over to the price list.
-   Right page = chapter text. Left page = pull-quote over a watermark of the
-   mark, grounded by three facts taken from the catalogue itself. */
-const STORY = [
-  { kicker:'الفصل الأول',  title:'حيث يبدأ المطر حكايته',
-    body:'في صلالة، حيث يعانق ضباب الخريف جبال ظفار ويهبّ نسيم البحر محمّلًا بعبق اللبان، يرتفع تالين — عنوان جديد للسكن الراقي في قلب المدينة، على خطوات من جراند مول والسعادة.',
-    en:'WHERE THE MONSOON BEGINS ITS TALE',
-    quote:'مبنى واحد… يختصر صلالة كلها',
-    stats:[['2 دقيقة','إلى جراند مول صلالة'],['13 دقيقة','إلى شاطئ الحافة'],['15 دقيقة','إلى مطار صلالة']] },
-  { kicker:'الفصل الثاني', title:'الحياة عند مستوى الشارع',
-    body:'أربعة محلات بواجهات مضيئة تستقبل المدينة صباحًا ومساءً؛ مقهى يفوح منه الهيل، ومعرض يلمع زجاجه — حياة كاملة تنبض تحت بيتك، وميزانين يعلوها بهدوء.',
-    en:'LIFE AT STREET LEVEL',
-    quote:'واجهة تليق باسمك التجاري',
-    stats:[['4','محلات بواجهات زجاجية'],['93 م²','أكبر مساحة تجارية'],['2 دقيقة','من جراند مول']] },
-  { kicker:'الفصل الثالث', title:'أجنحة بروح الفندق',
-    body:'شُقق صُمّمت كأجنحة فندقية: تشطيبات راقية، أثاث فاخر منتقى بعناية، وإضاءة دافئة تشبه ترحيب الفنادق الكبرى — لتسكن كما لو كنت ضيفًا دائمًا لا يغادر.',
-    en:'SUITES WITH A HOTEL SOUL',
-    quote:'كل تفصيلة… على ذوق ضيف لا يرضى إلا بالأفضل',
-    stats:[['91 م²','أكبر شقة مزدوجة'],['2','غرفتا نوم وصالة رحبة'],['34 م²','استوديوهات أنيقة']] },
-  { kicker:'الفصل الرابع', title:'الخريف على عتبة بيتك',
-    body:'من نوافذ الدور الثاني يتحوّل الصيف إلى لوحة: سحب تنساب على الجبال، رذاذ ناعم على الزجاج، وخضرة لا تراها إلا في صلالة. موسم الخريف بأكمله… إطلالة يومية.',
-    en:'THE KHAREEF AT YOUR WINDOW',
-    quote:'أن تشرب قهوتك والضباب يمرّ من جانبك',
-    stats:[['4 أشهر','من الضباب والخضرة'],['25°','صيف صلالة المعتدل'],['بلا ثمن','الإطلالة، كل صباح']] },
-  { kicker:'الفصل الخامس', title:'عبق اللبان',
-    body:'على هذه الأرض نبتت أشجار اللبان التي عرفها العالم قبل آلاف السنين. تالين يسكن المكان نفسه: أصالة ظفارية في العمارة، وكرم عُماني في التفاصيل.',
-    en:'THE SCENT OF FRANKINCENSE',
-    quote:'فخامة تُروى… لا تُشترى',
-    stats:[['أرض اللبان','تراث عالمي في ظفار'],['الجبال','خلف نافذتك'],['البحر','على مرمى نظرك']] },
-  { kicker:'الفصل السادس', title:'أقرب إلى السماء',
-    body:'في الدور الرابع يخفت صوت المدينة ويتّسع الأفق: الجبال من جهة، والبحر من أخرى، وهدوء لا يقطعه إلا أذان المغرب البعيد.',
-    en:'CLOSER TO THE SKY',
-    quote:'القمة ليست مكانًا… إنها إحساس',
-    stats:[['الرابع','الدور الأعلى سكنًا'],['روف','يتوّج المبنى'],['أفق','مفتوح بلا حدود']] },
-  { kicker:'الفصل الأخير', title:'استثمر في الأفضل',
-    body:'صلالة تنمو، وضيوف الخريف يعودون كل عام بأعداد أكبر. وحدة في تالين ليست مسكنًا فحسب — إنها أصل يعمل لصالحك: موقع لا يتكرر، وطابع فندقي، وطلب لا يهدأ.',
-    en:'INVEST IN THE BEST',
-    quote:'الأفضل… يبدأ من العنوان',
-    stats:[['40','وحدة سكنية'],['4','محلات تجارية'],['24 شهرًا','خطط سداد مريحة']] },
+/* ---------------- the storyboard ----------------
+   Fourteen scenes, verbatim from the brief, two per spread — right page then
+   left, in RTL reading order — threaded before every section. A spread is 2
+   pages, so the even-count rule that keeps every section opening on a
+   right-hand page still holds. A section's `story` is its spread index. */
+const SCENES = [
+  { n:'01', t:'البداية',          ar:'كل مشروع ناجح… يبدأ من عنوانٍ مميز.',            en:'Every Success Begins with the Right Address.' },
+  { n:'02', t:'الموقع',           ar:'في قلب صلالة… تبدأ فرص الأعمال بالنمو.',          en:'At the Heart of Salalah, Opportunities Grow.' },
+  { n:'03', t:'الرؤية',           ar:'نصنع بيئة تجارية تجمع بين الأناقة والنجاح.',      en:'Designed for Business. Built for Success.' },
+  { n:'04', t:'الاستثمار',        ar:'استثمار اليوم… هو نجاح الغد.',                    en:'Invest Today. Thrive Tomorrow.' },
+  { n:'05', t:'الحركة',           ar:'حيث يلتقي الموقع الاستراتيجي بالحركة اليومية.',   en:'Where Location Meets Opportunity.' },
+  { n:'06', t:'القيمة',           ar:'مساحات صُممت لتمنح أعمالك حضورًا أقوى.',          en:'Spaces Designed to Elevate Your Business.' },
+  { n:'07', t:'العملاء',          ar:'كل خطوة داخل المبنى… تقرّبك من عميل جديد.',       en:'Every Step Brings You Closer to Your Customers.' },
+  { n:'08', t:'الجودة',           ar:'تفاصيل مدروسة… وتجربة استثنائية.',                en:'Crafted with Purpose.' },
+  { n:'09', t:'صلالة',            ar:'حيث تبدأ حكاية الخريف… وتزدهر الأعمال.',          en:'Where the Monsoon Inspires Business.' },
+  { n:'10', t:'الثقة',            ar:'عنوان يليق بطموحك… وثقة تستحقها.',                en:'A Place Worth Your Ambition.' },
+  { n:'11', t:'المستقبل',         ar:'المستقبل يبدأ من المكان الصحيح.',                 en:'The Future Starts Here.' },
+  { n:'12', t:'النجاح',           ar:'ليس مجرد مبنى… بل وجهة للأعمال.',                 en:'More Than a Building. A Business Destination.' },
+  { n:'13', t:'الفرصة',           ar:'فرصتك اليوم… في موقع يصنع الفرق.',                en:'Your Opportunity Starts Here.' },
+  { n:'14', t:'النهاية (الخاتمة)', ar:'ابدأ مشروعك… واترك عنوانك يتحدث عن نجاحك.',      en:'Build Your Business. Define Your Success.' },
 ];
 // a number means pNN.jpg (images sit next to index.html); a string is a filename
 const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
@@ -114,7 +91,7 @@ faces.push({type:'cover'});                   // face 0
 faces.push({type:'logo'});                    // faces the poster: the brand mark
 PAGES.forEach((v,i)=> faces.push(
   typeof v === 'object'
-    ? {type:'story', ch:STORY[v.story], side:v.side, page:i+1}
+    ? {type:'story', sc:SCENES[2*v.story + (v.side==='right' ? 0 : 1)], side:v.side, page:i+1}
     : {type:'img', src:srcOf(v), page:i+1}));
 faces.push({type:'logo'});                    // faces the price list: the brand mark
 faces.push({type:'closing'});                 // back cover
@@ -185,28 +162,18 @@ function faceHTML(f){
         <div class="year">TALEEN</div>
       </div></div>`;
   if (f.type === 'story'){
-    const c = f.ch;
-    if (f.side === 'right')
-      return `<div class="leather story-page">
-        <div class="css-leather"></div>
-        <div class="frame"></div>
-        <div class="story-copy">
-          <div class="orn">— ◆ —</div>
-          <div class="kicker">${c.kicker}</div>
-          <h2>${c.title}</h2>
-          <p>${c.body}</p>
-          <div class="rule"></div>
-          <div class="en">${c.en}</div>
-        </div></div>`;
+    const c = f.sc;
     return `<div class="leather story-page">
       <div class="css-leather"></div>
-      <img class="wm" src="${LOGO}" alt="" onerror="this.remove()">
+      ${f.side === 'left' ? `<img class="wm" src="${LOGO}" alt="" onerror="this.remove()">` : ''}
       <div class="frame"></div>
       <div class="story-copy">
-        <blockquote>«${c.quote}»</blockquote>
-        <div class="stats">${c.stats.map(([v,l]) =>
-          `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}
-        </div>
+        <div class="orn">— ◆ —</div>
+        <div class="scene-no">${c.n}</div>
+        <div class="kicker" dir="rtl">${c.t}</div>
+        <h2 dir="rtl">${c.ar}</h2>
+        <div class="rule"></div>
+        <div class="en" dir="ltr">${c.en}</div>
       </div></div>`;
   }
   if (f.type === 'logo')
@@ -498,6 +465,8 @@ function onUp(e){
 }
 stage.addEventListener('pointerup', onUp,{passive:true});
 stage.addEventListener('pointercancel', onUp,{passive:true});
+/* native image/selection drags fire pointercancel mid-gesture and kill the turn */
+stage.addEventListener('dragstart', e=>e.preventDefault());
 
 /* Tap a page half to turn it. On touch the turn waits out the double-tap
    window, otherwise a double-tap-to-zoom would turn two pages on its way. */

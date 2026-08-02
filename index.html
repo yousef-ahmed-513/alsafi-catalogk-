@@ -72,8 +72,14 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
    while a chip jump snaps across many sheets at once */
 .sheet.no-anim{transition:none}
 .sheet.flipped{transform:rotateY(180deg)}
+/* No blanket will-change/translateZ here: promoting all ~108 faces to GPU
+   layers at retina resolution is hundreds of MB and crashes the tab on iOS
+   ("A problem repeatedly occurred"). Only the turning sheet gets promoted. */
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  transform:translateZ(0);will-change:transform;background:#f7f3ea}
+  background:#f7f3ea}
+.sheet.turning .face{will-change:transform}
+/* sheets buried deep in either stack are invisible anyway — skip painting them */
+.sheet.offstage{visibility:hidden}
 .face>*{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .face img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;border-radius:inherit}
 .face.back{transform:rotateY(180deg)}

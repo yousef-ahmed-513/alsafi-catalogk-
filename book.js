@@ -131,7 +131,10 @@ const chips = [...chipBar.querySelectorAll('.chip')];
 
 function faceHTML(f){
   if (f.type === 'img')
-    return `<img src="${f.src}" alt="" loading="lazy" decoding="async"
+    // data-src, not src: pages hydrate in a window around the reader (see
+    // hydrate()) so a phone never holds all 36 decoded scans at once —
+    // that is what crashed the tab on iOS
+    return `<img data-src="${f.src}" alt="" decoding="async"
       onerror="this.closest('.face').classList.add('missing');this.remove()">`;
   if (f.type === 'cover')
     return `<div class="leather">
@@ -230,12 +233,21 @@ function activeChip(){
   const on = chips.find(c=>c.classList.contains('active'));
   if (on && on.scrollIntoView) on.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
 }
-function preload(){
-  const from = Math.max(1, 2*flipped-4), to = Math.min(TOTAL_PAGES, 2*flipped+3);
-  for (let n=from;n<=to;n++){
-    const v = PAGES[n-1];
-    if (typeof v !== 'object'){ const im=new Image(); im.src = srcOf(v); }   // story pages are HTML
-  }
+/* Memory window. Sheets near the reader get their images hydrated; sheets far
+   away get their src RELEASED so the browser can drop the decoded bitmaps,
+   and are hidden from painting entirely. Keeps a phone at ~1/4 of the pages
+   in memory instead of all 50, which is what iOS was killing the tab over. */
+const NEAR = 4, FAR = 6;
+function hydrate(){
+  sheets.forEach((s,i)=>{
+    s.classList.toggle('offstage', i < flipped-3 || i > flipped+3);
+    const near = i >= flipped-NEAR && i <= flipped+NEAR;
+    const far  = i <  flipped-FAR  || i >  flipped+FAR;
+    s.querySelectorAll('img[data-src]').forEach(img=>{
+      if (near){ if (!img.getAttribute('src')) img.src = img.dataset.src; }
+      else if (far && img.getAttribute('src')) img.removeAttribute('src');
+    });
+  });
 }
 function zOrder(){
   for (let i=0;i<SHEETS;i++){
@@ -255,7 +267,7 @@ function render(){
   counterText(); activeChip();
   document.getElementById('edgesL').style.opacity = flipped===SHEETS ? 0 : 1;
   document.getElementById('edgesR').style.opacity = flipped===0      ? 0 : 1;
-  preload(); zOrder(); centerShift();
+  hydrate(); zOrder(); centerShift();
 }
 
 /* ---------------- programmatic turning (chips, arrows, keys) ---------------- */
@@ -496,5 +508,5 @@ stage.addEventListener('wheel', e=>{
 /* ---------------- boot ---------------- */
 zOrder(); render(); fit();
 setTimeout(()=>hint.classList.add('hide'), 6000);
-[1,2,3].forEach(i=>{const v=PAGES[i-1]; if (typeof v!=='object'){const im=new Image(); im.src=srcOf(v);}});
+
 })();

@@ -184,7 +184,7 @@ function faceHTML(f){
         <h2>للتفاصيل والحجز</h2>
         <p class="phone">${PHONE}</p>
         <p>صلالة — بالقرب من جراند مول والسعادة</p>
-        <div class="year">TALEEN</div>
+        <img class="agency" src="osool-logo.jpg" alt="أصول العقارية" onerror="this.remove()">
       </div></div>`;
   if (f.type === 'story'){
     const c = f.sc;

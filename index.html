@@ -138,6 +138,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 .cover-copy .year{margin-top:30px;font-family:Marcellus,serif;color:rgba(232,201,138,.8);letter-spacing:.4em;font-size:12px}
 .closing .cover-copy h2{font-weight:800;font-size:26px;color:#f1e7d2;margin:0 0 14px}
 .closing .cover-copy p{margin:6px 0;color:#dfe6f2;font-size:14.5px}
+/* the sales agency mark (أصول العقارية): dark lettering on white, so it is
+   framed as a light plaque like the TALEEN mark above it */
+.closing .cover-copy .agency{display:block;margin:26px auto 0;
+  width:calc(var(--pw)*.44);height:auto;object-fit:contain;
+  border-radius:10px;border:1px solid rgba(201,163,92,.55);
+  box-shadow:0 0 0 4px rgba(201,163,92,.12), 0 10px 26px rgba(0,0,0,.45)}
 .closing .cover-copy .phone{direction:ltr;font-family:Marcellus,serif;font-size:20px;color:var(--gold2);letter-spacing:.08em}
 
 /* ===== The brand pages: facing the poster, and facing the price list ===== */
@@ -225,6 +231,8 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   margin:26px 0 10px}
 .lite-page{width:100%;height:auto;display:block;margin:0 0 10px;border-radius:8px}
 .lite-foot{text-align:center;color:#cfd8e6;font-size:14px;padding:18px 0}
+.lite-agency{width:190px;height:auto;border-radius:8px;
+  border:1px solid rgba(201,163,92,.5);margin-bottom:10px}
 .lite-foot a{color:#e8c98a;text-decoration:none;direction:ltr;unicode-bidi:embed}
 
 @media (prefers-reduced-motion:reduce){
@@ -322,7 +330,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=12');
+    lite.done = true; load('lite.js?v=13');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -348,7 +356,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=12').onerror = lite;
+  load('book.js?v=13').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

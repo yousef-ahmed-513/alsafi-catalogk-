@@ -39,7 +39,10 @@
       html += '<img class="lite-page" loading="lazy" src="' + pre + s.pages[j] + '" alt="">';
     }
   }
-  html += '<div class="lite-foot">للتفاصيل والحجز &middot; ' +
+  html += '<div class="lite-foot">' +
+          '<img class="lite-agency" src="osool-logo.jpg" alt="أصول العقارية" ' +
+            'onerror="this.style.display=\'none\'"><br>' +
+          'للتفاصيل والحجز &middot; ' +
           '<a href="tel:+96895668000">+968 9566 8000</a></div>';
 
   var wrap = document.createElement('div');

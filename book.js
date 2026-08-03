@@ -544,5 +544,8 @@ stage.addEventListener('wheel', e=>{
 /* ---------------- boot ---------------- */
 zOrder(); render(); fit();
 setTimeout(()=>hint.classList.add('hide'), 6000);
+// tell the loader the book is alive, so the lite fallback stands down
+window.__bookOK = true;
+if (window.__bookReady) window.__bookReady();
 
 })();

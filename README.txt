@@ -2,6 +2,16 @@ TALEEN — Digital Flipbook (FARIS)
 =======================================
 Static site. No build step needed.
 
+TWO VIEWERS, ONE LINK:
+index.html carries an ES5 loader. Modern browsers boot the 3D book
+(book.js). Browsers that cannot run it -- old Android WebViews, iOS-12-era
+Safari, anything without pointer events or ES2020 -- get lite.js instead: a
+plain scrolling catalogue (ES5 only, old-safe CSS) with the same pages,
+sections and phone number. If book.js ever fails to load or throws during
+boot, the loader swaps to lite automatically instead of leaving a dead
+page. ?lite=1 forces the lite viewer. Bump the ?v= on both scripts when
+changing the loader contract.
+
 DEPLOY ON VERCEL:
 1) Unzip this folder.
 2) vercel.com -> Add New -> Project -> drag the folder (or push to GitHub and import).

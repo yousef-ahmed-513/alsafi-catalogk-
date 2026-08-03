@@ -200,6 +200,31 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 @keyframes hintfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .hint.hide{display:none}
 
+/* ===== Lite viewer (old phones / boot-failure fallback) =====
+   Only old-safe CSS in this block — it must render on any browser. */
+html.lite-root{overflow:auto;height:auto}
+body.lite-mode{display:block;overflow:auto;height:auto}
+body.lite-mode .stage{display:none}
+body.lite-mode .progress{display:none}
+body.lite-mode .navbtn{display:none}
+body.lite-mode .counter{display:none}
+body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(8,15,29,.96);border-top:1px solid rgba(232,201,138,.25);
+  padding:8px 0;margin:0}
+.lite{max-width:640px;margin:0 auto;padding:0 12px 96px}
+.lite-cover{text-align:center;padding:26px 10px 6px}
+.lite-cover img{width:150px;height:auto}
+.lite-tag{font-family:Marcellus,serif;color:#e8c98a;font-size:11px;
+  letter-spacing:.3em;margin-top:10px}
+.lite-title{font-family:Marcellus,serif;color:#e8c98a;font-size:34px;
+  letter-spacing:.15em;margin-top:8px}
+.lite-sub{color:#cfd8e6;font-size:13px;margin-top:6px}
+.lite-h{color:#e8c98a;font-size:16px;font-weight:700;text-align:center;
+  margin:26px 0 10px}
+.lite-page{width:100%;height:auto;display:block;margin:0 0 10px;border-radius:8px}
+.lite-foot{text-align:center;color:#cfd8e6;font-size:14px;padding:18px 0}
+.lite-foot a{color:#e8c98a;text-decoration:none;direction:ltr;unicode-bidi:embed}
+
 @media (prefers-reduced-motion:reduce){
   .sheet,.spage{transition:transform .01s}
   .hint span{animation:none}
@@ -282,6 +307,35 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   </div>
 </footer>
 
-<script src="book.js?v=9"></script>
+<script>
+/* Loader — strict ES5 so it parses on ANY phone. Modern browsers get the 3D
+   book; anything that can't run it (old Android WebViews, iOS 12 Safari, no
+   pointer events) gets the lite scrolling viewer, and if book.js fails to
+   boot for any reason the page swaps to lite instead of dying. ?lite=1
+   forces the lite viewer for testing or as a shareable escape hatch. */
+(function(){
+  function load(src){
+    var s = document.createElement('script');
+    s.src = src; document.body.appendChild(s); return s;
+  }
+  function lite(){
+    if (window.__bookOK || window.__liteOK || lite.done) return;
+    lite.done = true; load('lite.js?v=10');
+  }
+  if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
+  var modern = false;
+  try{
+    new Function('const a=(x)=>x?.b ?? [...[]].length;');
+    modern = ('onpointerdown' in window) &&
+             typeof CSS !== 'undefined' && CSS.supports &&
+             CSS.supports('transform-style','preserve-3d');
+  }catch(e){}
+  if (!modern){ lite(); return; }
+  window.addEventListener('error', lite);
+  window.__bookReady = function(){ window.removeEventListener('error', lite); };
+  load('book.js?v=10').onerror = lite;
+  setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
+})();
+</script>
 </body>
 </html>

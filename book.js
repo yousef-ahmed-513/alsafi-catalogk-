@@ -203,7 +203,7 @@ function faceHTML(f){
       <img class="sbg" src="${srcOf(`st${c.n}.jpg`)}" alt="" decoding="async"
            onerror="this.remove()">
       <div class="scrim"></div>
-      ${c.pos === 'top' ? '' : `<img class="sagency" src="osool-gold.png" alt="" onerror="this.remove()">`}
+      ${c.pos === 'top' ? '' : `<img class="sagency" src="osool-chip.png" alt="" onerror="this.remove()">`}
       <div class="frame"></div>
       <div class="story-copy">
         <div class="orn">— ◆ —</div>

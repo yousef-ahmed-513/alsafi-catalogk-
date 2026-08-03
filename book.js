@@ -212,13 +212,14 @@ function faceHTML(f){
       </div></div>`;
   }
   if (f.type === 'logo')
-    // the two pages that would otherwise be blank leather — facing the poster
-    // and facing the price list. Just the mark, large, nothing else.
-    return `<div class="leather logo-page">
+    // the two pages that would otherwise be blank — facing the poster and
+    // facing the price list. Off-white like the cover, the mark straight on
+    // the cream (transparent line-art cut, no plaque box), tagline beneath.
+    return `<div class="leather logo-page light">
       <div class="css-leather"></div>
       <div class="frame"></div>
       <div class="brandmark">
-        <img class="mark" src="${LOGO}" alt="TALEEN"
+        <img class="mark" src="taleen-logo-cover.png" alt="TALEEN"
              onerror="this.closest('.brandmark').classList.add('nomark');this.remove()">
         <div class="fallback">
           <div class="rule"></div>

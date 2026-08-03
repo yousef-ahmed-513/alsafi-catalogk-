@@ -183,6 +183,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   max-height:calc(var(--ph)*.52);object-fit:contain;
   border-radius:14px;border:1px solid rgba(201,163,92,.65);
   box-shadow:0 0 0 5px rgba(201,163,92,.15), 0 18px 42px rgba(0,0,0,.55)}
+/* on the light brand pages the mark is the transparent cut, no box at all */
+.logo-page.light .brandmark img.mark{width:calc(var(--pw)*.64);
+  max-height:calc(var(--ph)*.58);border:none;border-radius:0;box-shadow:none}
+.logo-page.light .fallback h1{color:#a97e35;text-shadow:none}
+.logo-page.light .fallback .rule{background:linear-gradient(90deg,transparent,#b38a40,transparent)}
 .logo-page .tagline{font-size:15px;margin-top:26px;opacity:.95}
 
 /* ===== Story chapter spreads =====
@@ -373,7 +378,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=19');
+    lite.done = true; load('lite.js?v=20');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -399,7 +404,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=19').onerror = lite;
+  load('book.js?v=20').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

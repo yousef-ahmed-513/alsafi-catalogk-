@@ -72,12 +72,16 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
    while a chip jump snaps across many sheets at once */
 .sheet.no-anim{transition:none}
 .sheet.flipped{transform:rotateY(180deg)}
-/* No blanket will-change/translateZ here: promoting all ~108 faces to GPU
-   layers at retina resolution is hundreds of MB and crashes the tab on iOS
-   ("A problem repeatedly occurred"). Only the turning sheet gets promoted. */
+/* Two iOS constraints pull against each other here. Promoting all ~108 faces
+   to GPU layers crashes the tab on memory ("A problem repeatedly occurred"),
+   but WebKit only honors backface-visibility reliably on composited faces —
+   uncomposited, the front face of a flipped sheet bleeds through mirrored.
+   So promotion follows the reader: only sheets near the current spread
+   (.near, set from hydrate()) get composited — ~18 layers, both fixes. */
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
   background:#f7f3ea}
-.sheet.turning .face{will-change:transform}
+.sheet.near .face.front{transform:translateZ(0);will-change:transform}
+.sheet.near .face.back{transform:rotateY(180deg) translateZ(0);will-change:transform}
 /* sheets buried deep in either stack are invisible anyway — skip painting them */
 .sheet.offstage{visibility:hidden}
 .face>*{backface-visibility:hidden;-webkit-backface-visibility:hidden}

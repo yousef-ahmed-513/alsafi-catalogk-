@@ -242,6 +242,7 @@ function hydrate(){
   sheets.forEach((s,i)=>{
     s.classList.toggle('offstage', i < flipped-3 || i > flipped+3);
     const near = i >= flipped-NEAR && i <= flipped+NEAR;
+    s.classList.toggle('near', near);        // composited: see the CSS note on iOS backfaces
     const far  = i <  flipped-FAR  || i >  flipped+FAR;
     s.querySelectorAll('img[data-src]').forEach(img=>{
       if (near){ if (!img.getAttribute('src')) img.src = img.dataset.src; }

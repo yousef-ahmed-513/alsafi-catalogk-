@@ -7,22 +7,30 @@
    shortcut. Pinch or double-tap magnifies the spread, which is how the
    dimension text stays readable when the book is scaled down on a phone.
 
+   HOW IT IS DRAWN — and why. The spread is two FLAT page slots (.pg.right
+   and .pg.left): plain positioned divs, no transforms, no 3D, rendered into
+   the normal page tiles like any web content. The ONLY 3D element in the
+   whole document is the single .turn panel created while a page is actually
+   mid-turn, and it is removed the moment the turn settles. An earlier build
+   kept all 27 sheets in one preserve-3d tree with backface-visibility on
+   every face; WebKit promotes each such face to its own GPU layer and
+   re-rasterises every layer at devicePixelRatio x pinch-zoom scale — on an
+   iPhone (3x screen, zoom up to 4x) that is gigabytes of layer memory, and
+   iOS killed the tab: "A problem repeatedly occurred". Flat slots + one
+   transient panel is the shape WebKit can never blow up on.
+
    Faces (spread reading order):
    0        = leather cover (front)
-   1        = inside front cover (blank leather)
+   1        = brand page facing the poster
    2..N+1   = the catalogue pages, in SECTIONS order
-   N+2      = inside back cover (blank leather)
+   N+2      = brand page facing the price list
    N+3      = closing face (back cover)
    Sheet i front = face 2i, back = face 2i+1  (cover sheet is i=0)
-   A spread shows face 2f-1 on the RIGHT and face 2f on the LEFT.
+   A spread at state f shows face 2f-1 on the RIGHT and face 2f on the LEFT.
+   Turning forward flips sheet f (left half -> right half, rotateY 0->180);
+   turning back un-flips sheet f-1 (180->0). RTL: the right page reads first. */
 
-   The inside-front-cover blank is what keeps the catalogue aligned: without
-   it p01 becomes the back of the cover sheet and every 6-page floor section
-   is knocked half a spread out of step, so sections straddle spreads. With
-   it, each section starts on a right-hand page and ends on a left-hand one.
-   Unflipped sheets rest on LEFT half; flipping rotates them to RIGHT. */
-
-const COVER_ART = 'cover-art.jpg';            // Higgsfield leather art (optional, CSS fallback)
+const COVER_ART = 'cover-art.jpg';            // leather art (optional, CSS fallback)
 // vector tracing of LOGO.png, so the mark stays sharp however large the book
 // is drawn or zoomed. Lowercase .svg — Vercel serves case-sensitively.
 const LOGO = 'logo.svg';
@@ -139,10 +147,10 @@ const chips = [...chipBar.querySelectorAll('.chip')];
 
 function faceHTML(f){
   if (f.type === 'img')
-    // data-src, not src: pages hydrate in a window around the reader (see
-    // hydrate()) so a phone never holds all 36 decoded scans at once —
-    // that is what crashed the tab on iOS
-    return `<img data-src="${f.src}" alt="" decoding="async"
+    // plain src: only the faces of the open spread (and the turning panel)
+    // exist in the DOM at all — at most six images — so there is no lazy
+    // hydration to manage and nothing for a phone to run out of
+    return `<img src="${f.src}" alt="" decoding="async"
       onerror="this.closest('.face').classList.add('missing');this.remove()">`;
   if (f.type === 'cover')
     return `<div class="leather">
@@ -206,19 +214,45 @@ function faceHTML(f){
   return `<div class="leather"><div class="css-leather"></div><div class="frame"></div></div>`;
 }
 
-const sheets = [];
-for (let i=0;i<SHEETS;i++){
-  const s = document.createElement('div');
-  s.className = 'sheet';
-  s.innerHTML =
-    `<div class="face front">${faceHTML(faces[2*i])}<div class="shade"></div></div>`+
-    `<div class="face back">${faceHTML(faces[2*i+1])}<div class="shade"></div></div>`;
-  book.appendChild(s); sheets.push(s);
+/* ---------------- the flat spread ----------------
+   .face.front carries the LEFT-page dressing (radius + gutter on the left
+   side), .face.back the right-page dressing — the same classes the turning
+   panel uses for its two faces, so a page looks identical mid-turn and at
+   rest. An out-of-range face index hides the slot (closed book states). */
+const pgL = document.createElement('div'); pgL.className = 'pg left';
+const pgR = document.createElement('div'); pgR.className = 'pg right';
+book.appendChild(pgR); book.appendChild(pgL);
+
+const faceBox = (fi, side) =>
+  `<div class="face ${side}">${fi >= 0 && fi < faces.length ? faceHTML(faces[fi]) : ''}</div>`;
+const spreadR = f => f >= 1     ? 2*f - 1 : -1;
+const spreadL = f => f < SHEETS ? 2*f     : -1;
+function setSlots(r, l){
+  pgR.innerHTML = faceBox(r, 'back');
+  pgL.innerHTML = faceBox(l, 'front');
+  pgR.style.visibility = r < 0 ? 'hidden' : '';
+  pgL.style.visibility = l < 0 ? 'hidden' : '';
+}
+const showSpread = () => setSlots(spreadR(flipped), spreadL(flipped));
+
+/* Warm the HTTP cache for the neighbouring spreads so a turn never waits on
+   the network. The Image objects are held briefly so the decoder keeps them
+   too; the list is capped, so this can never accumulate. */
+const warm = [];
+function prefetch(){
+  for (const df of [1, -1, 2]){
+    const f = flipped + df;
+    for (const fi of [2*f - 1, 2*f]){
+      const fc = faces[fi];
+      if (fc && fc.type === 'img'){ const im = new Image(); im.src = fc.src; warm.push(im); }
+    }
+  }
+  while (warm.length > 12) warm.shift();
 }
 
 /* ---------------- state ---------------- */
 let flipped = 0;            // sheets turned to the right
-let animating = false;
+let drag = null;
 
 /* ---------------- chrome ---------------- */
 function counterText(){
@@ -245,52 +279,6 @@ function activeChip(){
     best.scrollIntoView?.({block:'nearest', inline:'center', behavior:'smooth'});
   }
 }
-/* Memory window, in two phases so a phone never does heavy work mid-turn.
-
-   ensure() runs synchronously on every interaction: it only guarantees the
-   sheets actually on screen (and the one about to turn) are hydrated and
-   composited — normally a no-op, since settle() prepared them earlier.
-
-   settle() does the expensive part — shifting the whole window: decoding
-   newly-near images, promoting/demoting GPU layers, releasing far bitmaps —
-   and runs debounced, ~0.9s after the LAST flip. While the reader is
-   turning pages nothing loads and no layers churn, which is what made the
-   turn animation stutter on phones. */
-const NEAR = 3, FAR = 5;
-let settleTimer = null;
-function ensure(){
-  for (let i = Math.max(0, flipped-1); i <= Math.min(SHEETS-1, flipped+1); i++){
-    const s = sheets[i];
-    s.classList.remove('offstage');
-    s.classList.add('near');
-    s.querySelectorAll('img[data-src]').forEach(img=>{
-      if (!img.getAttribute('src')) img.src = img.dataset.src;
-    });
-  }
-}
-function settle(){
-  sheets.forEach((s,i)=>{
-    s.classList.toggle('offstage', i < flipped-3 || i > flipped+3);
-    const near = i >= flipped-NEAR && i <= flipped+NEAR;
-    s.classList.toggle('near', near);        // composited: see the CSS note on iOS backfaces
-    const far  = i <  flipped-FAR  || i >  flipped+FAR;
-    s.querySelectorAll('img[data-src]').forEach(img=>{
-      if (near){ if (!img.getAttribute('src')) img.src = img.dataset.src; }
-      else if (far && img.getAttribute('src')) img.removeAttribute('src');
-    });
-  });
-}
-function hydrate(){
-  ensure();
-  clearTimeout(settleTimer);
-  settleTimer = setTimeout(settle, 900);
-}
-function zOrder(){
-  for (let i=0;i<SHEETS;i++){
-    const s = sheets[i];
-    s.style.zIndex = s.classList.contains('flipped') ? 100 + i : 100 + (SHEETS - i);
-  }
-}
 function centerShift(){
   // centre the closed book: the cover sits on one half only
   const base = flipped===0 ? 437/2 : flipped===SHEETS ? -437/2 : 0;
@@ -303,46 +291,69 @@ function render(){
   counterText(); activeChip();
   document.getElementById('edgesL').style.opacity = flipped===SHEETS ? 0 : 1;
   document.getElementById('edgesR').style.opacity = flipped===0      ? 0 : 1;
-  hydrate(); zOrder(); centerShift();
+  centerShift();
+}
+
+/* ---------------- the turning panel ----------------
+   One panel at a time. beginTurn() builds it lying flat over the page being
+   grabbed and re-points the slot BENEATH the moving side at the page that
+   should show through as the paper lifts. settleTurn() commits or abandons:
+   the state (and all the chrome) updates the moment the turn commits, and
+   when the transition lands the panel is removed and the flat slots take
+   over — the panel's final pose and the slot content are pixel-identical,
+   so the hand-off is invisible. */
+let turning = null;         // { el, fwd, t } while a panel exists
+
+function hardFinish(){
+  if (!turning) return;
+  clearTimeout(turning.t);
+  turning.el.remove();
+  turning = null;
+  showSpread();
+}
+function beginTurn(fwd){
+  if (fwd ? flipped >= SHEETS : flipped <= 0) return null;
+  hardFinish();
+  const i = fwd ? flipped : flipped - 1;      // the sheet being turned
+  const el = document.createElement('div');
+  el.className = 'turn no-anim';
+  el.innerHTML = faceBox(2*i, 'front') + faceBox(2*i + 1, 'back');
+  el.style.transform = `rotateY(${fwd ? 0 : 180}deg)`;
+  if (fwd) setSlots(spreadR(flipped), spreadL(flipped + 1));
+  else     setSlots(spreadR(flipped - 1), spreadL(flipped));
+  book.appendChild(el);
+  void el.offsetWidth;                        // commit the start pose before animating
+  turning = { el, fwd, t:0 };
+  return el;
+}
+function settleTurn(commit){
+  const tn = turning;
+  if (!tn) return;
+  if (commit){ flipped += tn.fwd ? 1 : -1; render(); }
+  tn.el.classList.remove('no-anim');
+  void tn.el.offsetWidth;
+  tn.el.style.transform = `rotateY(${tn.fwd === commit ? 180 : 0}deg)`;
+  tn.t = setTimeout(()=>{
+    if (turning !== tn) return;
+    turning = null;
+    tn.el.remove();
+    showSpread(); prefetch();
+  }, 820);
 }
 
 /* ---------------- programmatic turning (chips, arrows, keys) ---------------- */
-let animSeq = 0;
 function flipTo(target){
   target = Math.max(0, Math.min(SHEETS, target));
   if (drag || target === flipped) return;
   hint.classList.add('hide');
-  const seq = ++animSeq;                        // supersedes any run still in flight
-
-  // Turning 17 sheets one at a time takes ~5s, so a distant chip snaps there.
-  if (Math.abs(target - flipped) > 3){
-    animating = false;
-    sheets.forEach(s=>s.classList.add('no-anim'));
-    sheets.forEach((s,i)=>{ s.classList.remove('turning'); s.classList.toggle('flipped', i < target); });
-    flipped = target; render();
-    void book.offsetWidth;                      // commit before re-enabling the transition
-    sheets.forEach(s=>s.classList.remove('no-anim'));
+  if (Math.abs(target - flipped) > 1){        // distant jump: snap, do not grind
+    hardFinish();
+    flipped = target;
+    render(); showSpread(); prefetch();
     return;
   }
-
-  animating = true;
-  const step = () => {
-    if (seq !== animSeq) return;
-    if (flipped === target){ animating=false; render(); return; }
-    const i = target > flipped ? flipped : flipped-1;
-    const s = sheets[i];
-    s.classList.add('turning');
-    s.style.zIndex = 400;                       // fly above everything
-    void s.offsetWidth;
-    s.classList.toggle('flipped', target > flipped);
-    flipped += target > flipped ? 1 : -1;
-    render(); s.style.zIndex = 400;
-    setTimeout(()=>{
-      if (seq !== animSeq) return;
-      s.classList.remove('turning'); zOrder(); step();
-    }, Math.abs(target-flipped) ? 240 : 800);
-  };
-  step();
+  if (!beginTurn(target > flipped)) return;   // supersedes any turn in flight
+  settleTurn(true);
 }
 const next = () => flipTo(flipped+1);
 const prev = () => flipTo(flipped-1);
@@ -366,7 +377,10 @@ document.getElementById('fsBtn').addEventListener('click', ()=>{
 
 /* ---------------- view transform: fit + zoom + pan ----------------
    The wrap carries fit*zoom so the book element itself stays in its own
-   437x650-per-page coordinate space, which the sheet geometry depends on. */
+   437x650-per-page coordinate space, which the page geometry depends on.
+   The wrap is NOT layer-promoted: a scaled flat subtree renders through the
+   browser's normal tiling, which is bounded by the viewport — pinch-zooming
+   can therefore never multiply per-face layer memory (the iPhone killer). */
 const BASE_W = 437*2, BASE_H = 650;
 let fitScale = 1, zoom = 1, panX = 0, panY = 0;
 
@@ -405,48 +419,33 @@ window.addEventListener('resize', fit);
 window.addEventListener('orientationchange', ()=> setTimeout(fit, 120));
 
 /* ---------------- dragging the paper ----------------
-   Grab the left page to turn forward, the right page to turn back; the sheet
+   Grab the left page to turn forward, the right page to turn back; the panel
    tracks the pointer across the half-width of the book and settles to
    whichever side it is closest to on release. */
 const pts = new Map();
-let drag = null, pinch = null, pan = null;
+let pinch = null, pan = null;
 
-function sheetUnderDrag(forward){
-  if (forward)  return flipped < SHEETS ? sheets[flipped]   : null;
-  return flipped > 0 ? sheets[flipped-1] : null;
-}
 function startDrag(x){
   const r = book.getBoundingClientRect();
   if (!r.width) return;
   const forward = (x - r.left) < r.width/2;   // left half = forward (RTL)
-  const sheet = sheetUnderDrag(forward);
-  if (!sheet) return;
-  drag = { sheet, forward, x0:x, w:r.width/2, progress:0, moved:false };
-  sheet.classList.add('turning','no-anim');
-  sheet.style.zIndex = 400;
+  if (!beginTurn(forward)) return;            // also snap-finishes a turn in flight
+  drag = { forward, x0:x, w:r.width/2, progress:0, moved:false };
 }
 function moveDrag(x){
-  if (!drag) return;
+  if (!drag || !turning) return;
   const dx = x - drag.x0;
   if (Math.abs(dx) > 6) drag.moved = true;
   const p = drag.forward ? dx/drag.w : -dx/drag.w;
   drag.progress = Math.max(0, Math.min(1, p));
   const angle = drag.forward ? 180*drag.progress : 180*(1-drag.progress);
-  drag.sheet.style.transform = `rotateY(${angle}deg)`;
+  turning.el.style.transform = `rotateY(${angle}deg)`;
 }
 function endDrag(){
   if (!drag) return;
-  const { sheet, forward, progress, moved } = drag;
+  const { progress, moved } = drag;
   drag = null;
-  sheet.classList.remove('no-anim');          // hand control back to the CSS transition
-  const commit = progress > 0.38;
-  if (commit){
-    sheet.classList.toggle('flipped', forward);
-    flipped += forward ? 1 : -1;
-  }
-  sheet.style.transform = '';                  // animates from the dragged angle to the class angle
-  render(); sheet.style.zIndex = 400;
-  setTimeout(()=>{ sheet.classList.remove('turning'); zOrder(); }, 820);
+  settleTurn(progress > 0.38);                // eases from the dragged angle to rest
   return moved;
 }
 
@@ -468,7 +467,7 @@ stage.addEventListener('pointerdown', e=>{
   }
   if (pts.size === 1){
     if (zoom > 1.01) pan = { x:e.clientX, y:e.clientY, moved:false };
-    else if (!animating) startDrag(e.clientX);
+    else startDrag(e.clientX);
   }
 },{passive:true});
 
@@ -542,10 +541,26 @@ stage.addEventListener('wheel', e=>{
 },{passive:false});
 
 /* ---------------- boot ---------------- */
-zOrder(); render(); fit();
+showSpread(); render(); fit(); prefetch();
 setTimeout(()=>hint.classList.add('hide'), 6000);
+
+/* The loader counts boots in localStorage; two lives that ended without
+   reaching here-and-surviving mean the tab is crash-looping, and the third
+   load gets the lite viewer. A life counts as healthy once it lasts a while
+   or leaves normally (pagehide covers reload, navigation and tab close). */
+function healthy(){ try{ localStorage.removeItem('taleenCrash'); }catch(e){} }
+window.addEventListener('pagehide', healthy);
+setTimeout(healthy, 25000);
+
 // tell the loader the book is alive, so the lite fallback stands down
 window.__bookOK = true;
 if (window.__bookReady) window.__bookReady();
+
+// introspection for the test rig: the running order and current position
+window.__taleen = {
+  order: faces.filter(f => f.type === 'img').map(f => f.src),
+  page: () => flipped,
+  total: TOTAL_PAGES,
+};
 
 })();

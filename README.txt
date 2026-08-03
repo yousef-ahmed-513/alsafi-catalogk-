@@ -3,14 +3,29 @@ TALEEN — Digital Flipbook (FARIS)
 Static site. No build step needed.
 
 TWO VIEWERS, ONE LINK:
-index.html carries an ES5 loader. Modern browsers boot the 3D book
-(book.js). Browsers that cannot run it -- old Android WebViews, iOS-12-era
-Safari, anything without pointer events or ES2020 -- get lite.js instead: a
-plain scrolling catalogue (ES5 only, old-safe CSS) with the same pages,
-sections and phone number. If book.js ever fails to load or throws during
-boot, the loader swaps to lite automatically instead of leaving a dead
-page. ?lite=1 forces the lite viewer. Bump the ?v= on both scripts when
-changing the loader contract.
+index.html carries an ES5 loader. Modern browsers boot the book (book.js).
+Browsers that cannot run it -- old Android WebViews, iOS-12-era Safari,
+anything without pointer events or ES2020 -- get lite.js instead: a plain
+scrolling catalogue (ES5 only, old-safe CSS) with the same pages, sections
+and phone number. If book.js ever fails to load or throws during boot, the
+loader swaps to lite automatically instead of leaving a dead page. On top
+of that sits a crash-loop canary: every boot is counted in localStorage and
+book.js erases the count once the page survives a while (or leaves normally
+via pagehide); two lives that never got erased mean the browser itself is
+crashing the tab, and the third load gets lite instead of a third crash.
+?lite=1 forces the lite viewer. Bump the ?v= on both scripts when changing
+the loader contract.
+
+HOW THE BOOK IS DRAWN (do not regress this):
+The open spread is two FLAT page slots -- plain divs, no transforms. The
+only 3D element in the whole document is the single .turn panel that exists
+while a page is actually mid-turn, and it is removed the moment the turn
+settles; at rest the DOM holds at most a handful of images. An earlier
+build kept all 27 sheets in one preserve-3d tree with backface-visibility
+on every face; WebKit promotes each such face to its own GPU layer,
+re-rasterised at devicePixelRatio x pinch-zoom scale, and iPhones killed
+the tab ("A problem repeatedly occurred"). Keep every face flat unless it
+is the one actually turning.
 
 DEPLOY ON VERCEL:
 1) Unzip this folder.

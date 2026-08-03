@@ -47,7 +47,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
    refuses to shrink below its content, so without it the 650px book keeps the
    stage at full height and pushes the controls off any short screen. */
 .stage{flex:1;min-height:0;min-width:0;overflow:hidden;
-  perspective:2600px;position:relative;z-index:2;
+  position:relative;z-index:2;
   touch-action:none;   /* pages are dragged by pointer; no native scroll/zoom */
   /* No selection inside the viewer: a drag over page text creates a selection,
      and the next press on it starts a native drag whose pointercancel kills
@@ -57,36 +57,35 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
    before it is scaled down, and grid alignment clamps an overflowing item to
    the start edge — which in RTL is the right — throwing it off-screen left. */
 .book-wrap{position:absolute;top:50%;left:50%;
-  width:calc(var(--pw)*2);height:var(--ph);will-change:transform}
-.book{position:relative;width:calc(var(--pw)*2);height:var(--ph);transform-style:preserve-3d;
-  transition:transform .8s cubic-bezier(.36,.04,.22,1)}
+  width:calc(var(--pw)*2);height:var(--ph)}
+.book{position:relative;width:calc(var(--pw)*2);height:var(--ph);
+  perspective:2600px;transition:transform .8s cubic-bezier(.36,.04,.22,1)}
 /* table shadow */
 .book::after{content:"";position:absolute;inset-inline:6%;bottom:-34px;height:50px;border-radius:50%;
   background:radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.55), transparent 70%);filter:blur(6px);z-index:-1}
 
-/* sheets rest on LEFT half (Arabic book, spine on the right/center) */
-.sheet{position:absolute;top:0;left:0;width:var(--pw);height:var(--ph);
-  transform-style:preserve-3d;transform-origin:right center;
+/* The spread is two FLAT slots — plain divs, no transforms, rendered into
+   the browser's normal page tiles. The ONLY 3D element in the document is
+   the single .turn panel that exists while a page is mid-turn. An earlier
+   build kept all 27 sheets in one preserve-3d tree with backface-visibility
+   on every face; WebKit gives each such face its own GPU layer, rasterised
+   at devicePixelRatio x pinch-zoom — on an iPhone that is gigabytes, and
+   iOS killed the tab ("A problem repeatedly occurred"). Never again: keep
+   every face flat unless it is the one actually turning. */
+.pg{position:absolute;top:0;width:var(--pw);height:var(--ph)}
+.pg.left{left:0}
+.pg.right{left:var(--pw)}
+.turn{position:absolute;top:0;left:0;width:var(--pw);height:var(--ph);
+  transform-origin:right center;transform-style:preserve-3d;z-index:40;
   transition:transform .78s cubic-bezier(.36,.04,.22,1)}
-/* driven directly rather than eased: while a finger is on the paper, and
-   while a chip jump snaps across many sheets at once */
-.sheet.no-anim{transition:none}
-.sheet.flipped{transform:rotateY(180deg)}
-/* Two iOS constraints pull against each other here. Promoting all ~108 faces
-   to GPU layers crashes the tab on memory ("A problem repeatedly occurred"),
-   but WebKit only honors backface-visibility reliably on composited faces —
-   uncomposited, the front face of a flipped sheet bleeds through mirrored.
-   So promotion follows the reader: only sheets near the current spread
-   (.near, set from hydrate()) get composited — ~18 layers, both fixes. */
-.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  background:#f7f3ea}
-.sheet.near .face.front{transform:translateZ(0);will-change:transform}
-.sheet.near .face.back{transform:rotateY(180deg) translateZ(0);will-change:transform}
-/* sheets buried deep in either stack are invisible anyway — skip painting them */
-.sheet.offstage{visibility:hidden}
-.face>*{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+/* driven directly rather than eased while a finger is on the paper */
+.turn.no-anim{transition:none}
+/* .front carries the LEFT-page dressing, .back the RIGHT-page dressing —
+   shared by the flat slots and the panel so a turning page looks identical */
+.face{position:absolute;inset:0;background:#f7f3ea;overflow:hidden}
+.turn .face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.turn .face.back{transform:rotateY(180deg)}
 .face img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;border-radius:inherit}
-.face.back{transform:rotateY(180deg)}
 /* rounded outer corners only */
 .face.front{border-radius:14px 3px 3px 14px}
 .face.back{border-radius:3px 14px 14px 3px}
@@ -95,16 +94,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   background:linear-gradient(270deg, rgba(0,0,0,.20), rgba(0,0,0,.05) 12%, transparent 22%, transparent 88%, rgba(255,255,255,.06) 97%)}
 .face.back::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
   background:linear-gradient(90deg, rgba(0,0,0,.20), rgba(0,0,0,.05) 12%, transparent 22%, transparent 88%, rgba(255,255,255,.06) 97%)}
-/* dynamic shade while turning */
 .face.missing{background:linear-gradient(180deg,#f7f3ea,#ece5d6)}
 .face.missing::before{content:"⌘";position:absolute;inset:0;display:grid;place-items:center;
   color:#c9b78f;font-size:34px}
-.face .shade{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,.45),transparent 55%);transition:opacity .5s}
-.sheet.turning .face .shade{opacity:1}
-/* moving cast shadow on the pile */
-.sheet::before{content:"";position:absolute;top:2%;bottom:2%;right:0;width:36px;transform:translateX(100%);
-  background:linear-gradient(90deg,rgba(0,0,0,.35),transparent);opacity:0;transition:opacity .4s;pointer-events:none}
-.sheet.turning::before{opacity:1}
 /* stacked page edges */
 .edges-r,.edges-l{position:absolute;top:6px;bottom:6px;width:14px;z-index:-1;
   background:repeating-linear-gradient(90deg,#efe9dc 0 2px,#d9d2c2 2px 3px);border-radius:3px}
@@ -226,7 +218,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
 .lite-foot a{color:#e8c98a;text-decoration:none;direction:ltr;unicode-bidi:embed}
 
 @media (prefers-reduced-motion:reduce){
-  .sheet,.spage{transition:transform .01s}
+  .turn,.book{transition:transform .01s}
   .hint span{animation:none}
 }
 
@@ -320,7 +312,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=10');
+    lite.done = true; load('lite.js?v=11');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -331,9 +323,22 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
              CSS.supports('transform-style','preserve-3d');
   }catch(e){}
   if (!modern){ lite(); return; }
+  /* Crash-loop canary. A browser crash kills the whole page — no JS error,
+     no watchdog, nothing this loader can catch in the moment. So each boot
+     is counted here, and book.js erases the count once the page has stayed
+     alive a while (or leaves normally via pagehide). Two boots in a row
+     that never got erased mean the tab is crash-looping on this device —
+     the third load gets the lite catalogue instead of a third crash. */
+  try{
+    var rec = (localStorage.getItem('taleenCrash') || '').split(',');
+    var n = +rec[0] || 0, ts = +rec[1] || 0, now = +new Date();
+    if (now - ts > 120000) n = 0;
+    if (n >= 2){ localStorage.removeItem('taleenCrash'); lite(); return; }
+    localStorage.setItem('taleenCrash', (n + 1) + ',' + now);
+  }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=10').onerror = lite;
+  load('book.js?v=11').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

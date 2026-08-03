@@ -126,6 +126,24 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 /* the wordmark lives inside the plaque now; the h1 is only the fallback */
 .cover-copy h1.fb{display:none}
 .cover-copy.nomark h1.fb{display:block}
+/* ===== The light (off-white) front cover =====
+   Same cream ground as the TALEEN artwork; multiply blending melts the
+   mark's own white ground into the cover so no plaque box shows. */
+.leather.light .css-leather{background:
+  radial-gradient(120% 90% at 50% 32%, #ffffff 0%, #faf7f0 55%, #efe9db 100%)}
+/* no z-index here: a stacking context would isolate the mark's multiply
+   blend from the cover ground beneath, bringing the white box back */
+.leather.light .cover-copy{z-index:auto}
+.leather.light .frame{border-color:rgba(179,138,64,.9);
+  box-shadow:inset 0 0 0 4px rgba(179,138,64,.16), inset 0 0 60px rgba(139,109,53,.10)}
+.leather.light .frame::after{border-color:rgba(179,138,64,.45)}
+.leather.light .cover-copy{text-shadow:none}
+/* transparent line-art cut of the mark: its open panels show the cover's
+   own cream, which is what the artwork's ground was anyway — no box at all */
+.leather.light .house-mark{width:calc(var(--pw)*.6);
+  border:none;border-radius:0;box-shadow:none}
+.leather.light .tagline{color:#a97e35;opacity:1;font-size:12px;margin-top:2px}
+.leather.light h1.fb{color:#a97e35;text-shadow:none}
 /* the tagline belongs to the mark, so it travels with it everywhere.
    text-indent offsets the trailing letter-space so it stays optically centred */
 .tagline{font-family:Marcellus,serif;text-transform:uppercase;color:var(--gold2);
@@ -330,7 +348,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=13');
+    lite.done = true; load('lite.js?v=14');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -356,7 +374,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=13').onerror = lite;
+  load('book.js?v=14').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

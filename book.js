@@ -158,19 +158,18 @@ function faceHTML(f){
     return `<img src="${f.src}" alt="" decoding="async"
       onerror="this.closest('.face').classList.add('missing');this.remove()">`;
   if (f.type === 'cover')
-    return `<div class="leather">
+    /* Off-white cover, per the brief: the same cream ground as the TALEEN
+       artwork so the mark sits directly on the cover (multiply blend melts
+       its white ground away), the gold frame kept, and no other copy —
+       the wordmark and Salalah live inside the mark itself. */
+    return `<div class="leather light">
       <div class="css-leather"></div>
-      <img class="art" src="${COVER_ART}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="cover-copy">
-        <img class="house-mark" src="${LOGO}" alt="TALEEN"
+        <img class="house-mark" src="taleen-logo-cover.png" alt="TALEEN"
              onerror="this.parentNode.classList.add('nomark');this.remove()">
         <div class="tagline">${TAGLINE}</div>
-        <div class="rule"></div>
         <h1 class="fb">TALEEN</h1>
-        <div class="ar-title">كتالوج الوحدات السكنية</div>
-        <div class="subtitle">صلالة · سلطنة عُمان</div>
-        <div class="year">MMXXVI</div>
       </div></div>`;
   if (f.type === 'closing')
     return `<div class="leather closing">

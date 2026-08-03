@@ -33,13 +33,15 @@ DEPLOY ON VERCEL:
 3) Framework: Other. No build command. Deploy.
 
 BRAND MARK:
-LOGO.png is the supplied artwork (166x130). logo.svg is a vector tracing of
-it, and that is what the book draws -- the raster is far too small to show
-large without going soft. It fills the two pages that would otherwise be
-blank leather: facing the poster, and facing the price list. If a
-higher-resolution or vector original ever turns up, re-trace with potrace or
-just drop it in as logo.svg. Note the tiny subscript "S" of the wordmark is
-about 10x14px in the source, too coarse to trace cleanly, so it is omitted.
+taleen-logo.jpg is the supplied TALEEN mark (gold on a cream ground),
+cropped from the 1254px original. Its panels fade into the cream, so it
+cannot be cut out cleanly -- the book shows it as a framed plaque (rounded
+corners + gold keyline, in CSS) on both covers and on the two brand pages
+facing the poster and the price list. taleen-logo-wm.png is a transparent
+line-art cut of the same mark used only for the faint story-page watermark,
+where its rough panel edges are invisible at 5% opacity. The older FARIS
+mark (LOGO.png + its tracing logo.svg) is kept in the repo but no longer
+drawn.
 
 OPTIONAL COVER ART:
 cover-art.jpg -- leather art for the front and back covers. Without it an

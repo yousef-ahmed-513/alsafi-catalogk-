@@ -25,9 +25,11 @@
   var pre = w <= 820 ? 'm/' : '';
 
   var html = '<div class="lite-cover">' +
-    '<img src="logo.svg" alt="FARIS" onerror="this.style.display=\'none\'">' +
+    // the plaque carries the TALEEN wordmark; the text title is its fallback
+    '<img src="taleen-logo.jpg" alt="TALEEN" onerror="this.style.display=\'none\';' +
+      'document.getElementById(\'ltitle\').style.display=\'block\'">' +
     '<div class="lite-tag">INVEST IN THE BEST</div>' +
-    '<div class="lite-title">TALEEN</div>' +
+    '<div class="lite-title" id="ltitle" style="display:none">TALEEN</div>' +
     '<div class="lite-sub">كتالوج الوحدات السكنية &middot; صلالة &middot; سلطنة عُمان</div>' +
     '</div>';
   for (var i = 0; i < SECTIONS.length; i++){

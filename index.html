@@ -113,11 +113,19 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   box-shadow:inset 0 0 0 4px rgba(201,163,92,.18), inset 0 0 60px rgba(0,0,0,.35)}
 .leather .frame::after{content:"";position:absolute;inset:7px;border:1px solid rgba(201,163,92,.45);border-radius:5px}
 .cover-copy{position:relative;z-index:2;text-align:center;padding:0 26px;text-shadow:0 2px 18px rgba(0,0,0,.55)}
-/* the real mark heads both covers, in place of the word FARIS.
-   width/height are explicit to beat the .face img rule that fills the page */
-.cover-copy .house-mark{display:block;margin:0 auto 14px;
-  width:calc(var(--pw)*.34);height:auto;object-fit:contain;border-radius:0;
-  filter:drop-shadow(0 10px 26px rgba(0,0,0,.45))}
+/* The TALEEN mark heads both covers. It is gold artwork on its own cream
+   ground (the panels fade into it, so it cannot be cut out) — shown as a
+   framed plaque: rounded corners + a hairline gold keyline. width/height
+   are explicit to beat the .face img rule that fills the page. */
+.cover-copy .house-mark{display:block;margin:0 auto 16px;
+  width:calc(var(--pw)*.46);height:auto;object-fit:contain;
+  border-radius:12px;border:1px solid rgba(201,163,92,.65);
+  box-shadow:0 0 0 4px rgba(201,163,92,.15), 0 14px 34px rgba(0,0,0,.5)}
+/* the closing cover shares the mark, smaller, above the contact details */
+.closing .cover-copy .house-mark{width:calc(var(--pw)*.32)}
+/* the wordmark lives inside the plaque now; the h1 is only the fallback */
+.cover-copy h1.fb{display:none}
+.cover-copy.nomark h1.fb{display:block}
 /* the tagline belongs to the mark, so it travels with it everywhere.
    text-indent offsets the trailing letter-space so it stays optically centred */
 .tagline{font-family:Marcellus,serif;text-transform:uppercase;color:var(--gold2);
@@ -136,9 +144,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 .logo-page .brandmark{position:relative;z-index:2;display:grid;place-items:center;width:100%}
 /* sized in page units so it scales with the book; width/height set explicitly
    to override the .face img rule that would otherwise stretch it to fill */
-.logo-page .brandmark img.mark{width:calc(var(--pw)*.66);height:auto;
-  max-height:calc(var(--ph)*.52);object-fit:contain;border-radius:0;
-  filter:drop-shadow(0 16px 38px rgba(0,0,0,.5))}
+.logo-page .brandmark img.mark{width:calc(var(--pw)*.6);height:auto;
+  max-height:calc(var(--ph)*.52);object-fit:contain;
+  border-radius:14px;border:1px solid rgba(201,163,92,.65);
+  box-shadow:0 0 0 5px rgba(201,163,92,.15), 0 18px 42px rgba(0,0,0,.55)}
 .logo-page .tagline{font-size:15px;margin-top:26px;opacity:.95}
 
 /* ===== Story chapter spreads =====
@@ -205,7 +214,8 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   padding:8px 0;margin:0}
 .lite{max-width:640px;margin:0 auto;padding:0 12px 96px}
 .lite-cover{text-align:center;padding:26px 10px 6px}
-.lite-cover img{width:150px;height:auto}
+.lite-cover img{width:210px;height:auto;border-radius:12px;
+  border:1px solid rgba(201,163,92,.55)}
 .lite-tag{font-family:Marcellus,serif;color:#e8c98a;font-size:11px;
   letter-spacing:.3em;margin-top:10px}
 .lite-title{font-family:Marcellus,serif;color:#e8c98a;font-size:34px;
@@ -312,7 +322,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=11');
+    lite.done = true; load('lite.js?v=12');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -338,7 +348,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=11').onerror = lite;
+  load('book.js?v=12').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

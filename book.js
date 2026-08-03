@@ -31,9 +31,14 @@
    turning back un-flips sheet f-1 (180->0). RTL: the right page reads first. */
 
 const COVER_ART = 'cover-art.jpg';            // leather art (optional, CSS fallback)
-// vector tracing of LOGO.png, so the mark stays sharp however large the book
-// is drawn or zoomed. Lowercase .svg — Vercel serves case-sensitively.
-const LOGO = 'logo.svg';
+/* The TALEEN mark, as supplied: gold artwork on a cream ground. The panels
+   of the artwork fade into that ground, so it cannot be cut out cleanly —
+   it is shown as a framed plaque instead (rounded corners + gold keyline in
+   CSS), which keeps the designer's gradients untouched. LOGO_WM is a
+   transparent line-art cut of the same mark used ONLY for the faint story
+   watermark, where its rough panel edges are invisible at 5% opacity. */
+const LOGO    = 'taleen-logo.jpg';
+const LOGO_WM = 'taleen-logo-wm.png';
 const PHONE = '+968 9566 8000';
 const TAGLINE = 'INVEST IN THE BEST';         // sits under the mark wherever it appears
 
@@ -158,10 +163,11 @@ function faceHTML(f){
       <img class="art" src="${COVER_ART}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="cover-copy">
-        <img class="house-mark" src="${LOGO}" alt="FARIS">
+        <img class="house-mark" src="${LOGO}" alt="TALEEN"
+             onerror="this.parentNode.classList.add('nomark');this.remove()">
         <div class="tagline">${TAGLINE}</div>
         <div class="rule"></div>
-        <h1>TALEEN</h1>
+        <h1 class="fb">TALEEN</h1>
         <div class="ar-title">كتالوج الوحدات السكنية</div>
         <div class="subtitle">صلالة · سلطنة عُمان</div>
         <div class="year">MMXXVI</div>
@@ -172,7 +178,7 @@ function faceHTML(f){
       <img class="art" src="${COVER_ART}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="cover-copy">
-        <img class="house-mark" src="${LOGO}" alt="FARIS">
+        <img class="house-mark" src="${LOGO}" alt="TALEEN" onerror="this.remove()">
         <div class="tagline">${TAGLINE}</div>
         <div class="rule"></div>
         <h2>للتفاصيل والحجز</h2>
@@ -184,7 +190,7 @@ function faceHTML(f){
     const c = f.sc;
     return `<div class="leather story-page">
       <div class="css-leather"></div>
-      ${f.side === 'left' ? `<img class="wm" src="${LOGO}" alt="" onerror="this.remove()">` : ''}
+      ${f.side === 'left' ? `<img class="wm" src="${LOGO_WM}" alt="" onerror="this.remove()">` : ''}
       <div class="frame"></div>
       <div class="story-copy">
         <div class="orn">— ◆ —</div>
@@ -202,11 +208,11 @@ function faceHTML(f){
       <div class="css-leather"></div>
       <div class="frame"></div>
       <div class="brandmark">
-        <img class="mark" src="${LOGO}" alt="FARIS"
+        <img class="mark" src="${LOGO}" alt="TALEEN"
              onerror="this.closest('.brandmark').classList.add('nomark');this.remove()">
         <div class="fallback">
           <div class="rule"></div>
-          <h1>FARIS</h1>
+          <h1>TALEEN</h1>
           <div class="rule"></div>
         </div>
         <div class="tagline">${TAGLINE}</div>

@@ -51,7 +51,7 @@ const SCENES = [
   { n:'01', t:'البداية',          ar:'كل مشروع ناجح… يبدأ من عنوانٍ مميز.',            en:'Every Success Begins with the Right Address.' },
   { n:'02', t:'الموقع',           ar:'في قلب صلالة… تبدأ فرص الأعمال بالنمو.',          en:'At the Heart of Salalah, Opportunities Grow.' },
   { n:'03', t:'الرؤية',           ar:'نصنع بيئة تجارية تجمع بين الأناقة والنجاح.',      en:'Designed for Business. Built for Success.' },
-  { n:'04', t:'الاستثمار',        ar:'استثمار اليوم… هو نجاح الغد.',                    en:'Invest Today. Thrive Tomorrow.' },
+  { n:'04', t:'الاستثمار',        ar:'استثمار اليوم… هو نجاح الغد.',                    en:'Invest Today. Thrive Tomorrow.', pos:'top' },
   { n:'05', t:'الحركة',           ar:'حيث يلتقي الموقع الاستراتيجي بالحركة اليومية.',   en:'Where Location Meets Opportunity.' },
   { n:'06', t:'القيمة',           ar:'مساحات صُممت لتمنح أعمالك حضورًا أقوى.',          en:'Spaces Designed to Elevate Your Business.' },
   { n:'07', t:'العملاء',          ar:'كل خطوة داخل المبنى… تقرّبك من عميل جديد.',       en:'Every Step Brings You Closer to Your Customers.' },
@@ -193,7 +193,9 @@ function faceHTML(f){
        (stNN.jpg, numbered like the scenes). A scene whose photograph has
        not been supplied yet falls back to the leather look — the onerror
        removes the img and the scrim just deepens the leather slightly. */
-    return `<div class="leather story-page">
+    /* pos:'top' floats the copy at the head of the frame instead — used when
+       a photograph's subjects live in the lower half and must stay clear */
+    return `<div class="leather story-page${c.pos === 'top' ? ' top' : ''}">
       <div class="css-leather"></div>
       ${f.side === 'left' ? `<img class="wm" src="${LOGO_WM}" alt="" onerror="this.remove()">` : ''}
       <img class="sbg" src="${srcOf(`st${c.n}.jpg`)}" alt="" decoding="async"

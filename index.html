@@ -199,6 +199,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 .leather.story-page{place-items:end center}
 .story-page .story-copy{position:relative;z-index:2;text-align:center;
   padding:0 42px 40px;text-shadow:0 2px 16px rgba(0,0,0,.6)}
+/* .top scenes: subjects fill the lower half, so the copy heads the frame
+   and the scrim flips to shade the top instead */
+.leather.story-page.top{place-items:start center}
+.story-page.top .story-copy{padding:38px 42px 0}
+.story-page.top .scrim{background:linear-gradient(0deg, rgba(8,13,24,.20) 0%,
+  rgba(8,13,24,0) 26%, rgba(8,13,24,.04) 52%, rgba(8,13,24,.62) 78%, rgba(8,13,24,.88) 100%)}
 .story-page .orn{color:rgba(232,201,138,.8);font-size:13px;margin-bottom:18px}
 .story-page .scene-no{font-family:Marcellus,serif;font-size:15px;letter-spacing:.4em;
   text-indent:.4em;color:rgba(232,201,138,.75);margin-bottom:14px}
@@ -367,7 +373,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=18');
+    lite.done = true; load('lite.js?v=19');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -393,7 +399,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=18').onerror = lite;
+  load('book.js?v=19').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

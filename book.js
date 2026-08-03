@@ -230,15 +230,37 @@ function activeChip(){
     chips.forEach(c=>{ if (+c.dataset.page && +c.dataset.page <= last) best = c; });
   }
   chips.forEach(c=>c.classList.toggle('active', c===best));
-  const on = chips.find(c=>c.classList.contains('active'));
-  if (on && on.scrollIntoView) on.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+  // scroll the chip row only when the section actually changes — running a
+  // smooth scroll on every flip is main-thread work during the animation
+  if (best && best !== activeChip.last){
+    activeChip.last = best;
+    best.scrollIntoView?.({block:'nearest', inline:'center', behavior:'smooth'});
+  }
 }
-/* Memory window. Sheets near the reader get their images hydrated; sheets far
-   away get their src RELEASED so the browser can drop the decoded bitmaps,
-   and are hidden from painting entirely. Keeps a phone at ~1/4 of the pages
-   in memory instead of all 50, which is what iOS was killing the tab over. */
-const NEAR = 4, FAR = 6;
-function hydrate(){
+/* Memory window, in two phases so a phone never does heavy work mid-turn.
+
+   ensure() runs synchronously on every interaction: it only guarantees the
+   sheets actually on screen (and the one about to turn) are hydrated and
+   composited — normally a no-op, since settle() prepared them earlier.
+
+   settle() does the expensive part — shifting the whole window: decoding
+   newly-near images, promoting/demoting GPU layers, releasing far bitmaps —
+   and runs debounced, ~0.9s after the LAST flip. While the reader is
+   turning pages nothing loads and no layers churn, which is what made the
+   turn animation stutter on phones. */
+const NEAR = 2, FAR = 5;
+let settleTimer = null;
+function ensure(){
+  for (let i = Math.max(0, flipped-1); i <= Math.min(SHEETS-1, flipped+1); i++){
+    const s = sheets[i];
+    s.classList.remove('offstage');
+    s.classList.add('near');
+    s.querySelectorAll('img[data-src]').forEach(img=>{
+      if (!img.getAttribute('src')) img.src = img.dataset.src;
+    });
+  }
+}
+function settle(){
   sheets.forEach((s,i)=>{
     s.classList.toggle('offstage', i < flipped-3 || i > flipped+3);
     const near = i >= flipped-NEAR && i <= flipped+NEAR;
@@ -249,6 +271,11 @@ function hydrate(){
       else if (far && img.getAttribute('src')) img.removeAttribute('src');
     });
   });
+}
+function hydrate(){
+  ensure();
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(settle, 900);
 }
 function zOrder(){
   for (let i=0;i<SHEETS;i++){

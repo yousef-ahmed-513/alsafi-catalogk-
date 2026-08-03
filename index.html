@@ -142,7 +142,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
    own cream, which is what the artwork's ground was anyway — no box at all */
 .leather.light .house-mark{width:calc(var(--pw)*.6);
   border:none;border-radius:0;box-shadow:none}
-.leather.light .tagline{color:#a97e35;opacity:1;font-size:12px;margin-top:2px}
+.leather.light .subtitle{color:#8a6a2e;font-size:15px;font-weight:600;
+  letter-spacing:.04em;margin-top:4px}
 .leather.light h1.fb{color:#a97e35;text-shadow:none}
 /* the tagline belongs to the mark, so it travels with it everywhere.
    text-indent offsets the trailing letter-space so it stays optically centred */
@@ -348,7 +349,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=14');
+    lite.done = true; load('lite.js?v=15');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -374,7 +375,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=14').onerror = lite;
+  load('book.js?v=15').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

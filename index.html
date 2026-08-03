@@ -173,7 +173,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   width:calc(var(--pw)*.44);height:auto;object-fit:contain;
   border-radius:10px;border:1px solid rgba(201,163,92,.55);
   box-shadow:0 0 0 4px rgba(201,163,92,.12), 0 10px 26px rgba(0,0,0,.45)}
-.closing .cover-copy .phone{direction:ltr;font-family:Marcellus,serif;font-size:20px;color:var(--gold2);letter-spacing:.08em}
+.closing .cover-copy .phone{direction:ltr;font-family:Marcellus,serif;font-size:20px;
+  font-weight:700;color:var(--gold2);letter-spacing:.08em}
 
 /* ===== The brand pages: facing the poster, and facing the price list ===== */
 .logo-page .brandmark{position:relative;z-index:2;display:grid;place-items:center;width:100%}
@@ -221,6 +222,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   color:rgba(232,201,138,.85);line-height:2.1}
 .story-page .wm{position:absolute;width:82%;top:50%;left:50%;transform:translate(-50%,-54%);
   opacity:.055;object-fit:contain;border-radius:0}
+/* the agency mark rides the corner of every scene page, gold over the photo */
+.story-page .sagency{position:absolute;top:30px;right:32px;z-index:3;
+  width:calc(var(--pw)*.2);height:auto;object-fit:contain;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.55))}
 .logo-page .fallback{display:none;text-align:center}
 .logo-page .brandmark.nomark .fallback{display:block}
 .logo-page .fallback h1{font-family:Marcellus,serif;font-weight:400;color:var(--gold2);
@@ -378,7 +383,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=20');
+    lite.done = true; load('lite.js?v=21');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -404,7 +409,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=20').onerror = lite;
+  load('book.js?v=21').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

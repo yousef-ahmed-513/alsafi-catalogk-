@@ -39,7 +39,8 @@ const COVER_ART = 'cover-art.jpg';            // leather art (optional, CSS fall
    watermark, where its rough panel edges are invisible at 5% opacity. */
 const LOGO    = 'taleen-logo.jpg';
 const LOGO_WM = 'taleen-logo-wm.png';
-const PHONE = '+968 9566 8000';
+const PHONE  = '+968 9566 8000';
+const PHONE2 = '+968 9331 1000';
 const TAGLINE = 'INVEST IN THE BEST';         // sits under the mark wherever it appears
 
 /* ---------------- the storyboard ----------------
@@ -185,6 +186,7 @@ function faceHTML(f){
         <div class="rule"></div>
         <h2>للتفاصيل والحجز</h2>
         <p class="phone">${PHONE}</p>
+        <p class="phone">${PHONE2}</p>
         <p>صلالة — بالقرب من جراند مول والسعادة</p>
       </div></div>`;
   if (f.type === 'story'){
@@ -201,6 +203,7 @@ function faceHTML(f){
       <img class="sbg" src="${srcOf(`st${c.n}.jpg`)}" alt="" decoding="async"
            onerror="this.remove()">
       <div class="scrim"></div>
+      ${c.pos === 'top' ? '' : `<img class="sagency" src="osool-gold.png" alt="" onerror="this.remove()">`}
       <div class="frame"></div>
       <div class="story-copy">
         <div class="orn">— ◆ —</div>
@@ -218,6 +221,8 @@ function faceHTML(f){
     return `<div class="leather logo-page light">
       <div class="css-leather"></div>
       <div class="frame"></div>
+      <img class="corner-agency" src="osool-logo-t.png" alt="أصول العقارية"
+           onerror="this.remove()">
       <div class="brandmark">
         <img class="mark" src="taleen-logo-cover.png" alt="TALEEN"
              onerror="this.closest('.brandmark').classList.add('nomark');this.remove()">

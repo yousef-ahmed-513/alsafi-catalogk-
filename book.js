@@ -189,9 +189,16 @@ function faceHTML(f){
       </div></div>`;
   if (f.type === 'story'){
     const c = f.sc;
+    /* Each scene carries its campaign photograph as a full-bleed ground
+       (stNN.jpg, numbered like the scenes). A scene whose photograph has
+       not been supplied yet falls back to the leather look — the onerror
+       removes the img and the scrim just deepens the leather slightly. */
     return `<div class="leather story-page">
       <div class="css-leather"></div>
       ${f.side === 'left' ? `<img class="wm" src="${LOGO_WM}" alt="" onerror="this.remove()">` : ''}
+      <img class="sbg" src="${srcOf(`st${c.n}.jpg`)}" alt="" decoding="async"
+           onerror="this.remove()">
+      <div class="scrim"></div>
       <div class="frame"></div>
       <div class="story-copy">
         <div class="orn">— ◆ —</div>

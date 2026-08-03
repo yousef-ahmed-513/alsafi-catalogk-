@@ -121,10 +121,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   width:calc(var(--pw)*.46);height:auto;object-fit:contain;
   border-radius:12px;border:1px solid rgba(201,163,92,.65);
   box-shadow:0 0 0 4px rgba(201,163,92,.15), 0 14px 34px rgba(0,0,0,.5)}
-/* the closing cover is headed by the agency mark — a wide lockup, so it
-   gets more width than the square TALEEN plaque needed */
-.closing .cover-copy .house-mark{width:calc(var(--pw)*.32)}
-.closing .cover-copy .agency-mark{width:calc(var(--pw)*.5);border-radius:10px}
+/* the closing cover is off-white like the front, headed by the agency
+   mark — the transparent cut, large and centred, straight on the cream */
+.closing.light .cover-copy .agency-mark{width:calc(var(--pw)*.62);
+  border:none;border-radius:0;box-shadow:none;margin-bottom:22px}
+.leather.light .tagline{color:#a97e35;opacity:1}
+.closing.light .cover-copy h2{color:#233044}
+.closing.light .cover-copy p{color:#3d4a5c}
+.closing.light .cover-copy .phone{color:#8a6a2e}
+.closing.light .cover-copy .rule{background:linear-gradient(90deg,transparent,#b38a40,transparent)}
 /* the wordmark lives inside the plaque now; the h1 is only the fallback */
 .cover-copy h1.fb{display:none}
 .cover-copy.nomark h1.fb{display:block}
@@ -354,7 +359,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=16');
+    lite.done = true; load('lite.js?v=17');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -380,7 +385,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=16').onerror = lite;
+  load('book.js?v=17').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

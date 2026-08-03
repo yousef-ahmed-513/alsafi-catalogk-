@@ -175,12 +175,11 @@ function faceHTML(f){
   if (f.type === 'closing')
     /* The booking page belongs to the sales agency: أصول العقارية heads it
        (the TALEEN mark already fronts the cover and the brand pages). */
-    return `<div class="leather closing">
+    return `<div class="leather closing light">
       <div class="css-leather"></div>
-      <img class="art" src="${COVER_ART}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="cover-copy">
-        <img class="house-mark agency-mark" src="osool-logo.jpg" alt="أصول العقارية"
+        <img class="house-mark agency-mark" src="osool-logo-t.png" alt="أصول العقارية"
              onerror="this.remove()">
         <div class="tagline">${TAGLINE}</div>
         <div class="rule"></div>

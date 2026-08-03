@@ -50,8 +50,16 @@ const SCENES = [
   { n:'13', t:'الفرصة',           ar:'فرصتك اليوم… في موقع يصنع الفرق.',                en:'Your Opportunity Starts Here.' },
   { n:'14', t:'النهاية (الخاتمة)', ar:'ابدأ مشروعك… واترك عنوانك يتحدث عن نجاحك.',      en:'Build Your Business. Define Your Success.' },
 ];
+/* Phones get the m/ image set: same scans at 600px — 2.9MB for the whole book
+   instead of 6.8MB, and a fraction of the decode work. The QR audience is on
+   a phone over mobile data; the page there is ~185px wide, so 600px keeps
+   full sharpness even pinch-zoomed. Decided once at boot. */
+const LOWRES = matchMedia('(max-width:820px), (max-height:500px)').matches;
 // a number means pNN.jpg (images sit next to index.html); a string is a filename
-const srcOf = v => typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
+const srcOf = v => {
+  const f = typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
+  return LOWRES ? `m/${f}` : f;
+};
 
 /* ---------------- running order ----------------
    The single source of truth: what the book contains, in what order, and
@@ -248,7 +256,7 @@ function activeChip(){
    and runs debounced, ~0.9s after the LAST flip. While the reader is
    turning pages nothing loads and no layers churn, which is what made the
    turn animation stutter on phones. */
-const NEAR = 2, FAR = 5;
+const NEAR = 3, FAR = 5;
 let settleTimer = null;
 function ensure(){
   for (let i = Math.max(0, flipped-1); i <= Math.min(SHEETS-1, flipped+1); i++){

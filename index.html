@@ -121,8 +121,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   width:calc(var(--pw)*.46);height:auto;object-fit:contain;
   border-radius:12px;border:1px solid rgba(201,163,92,.65);
   box-shadow:0 0 0 4px rgba(201,163,92,.15), 0 14px 34px rgba(0,0,0,.5)}
-/* the closing cover shares the mark, smaller, above the contact details */
+/* the closing cover is headed by the agency mark — a wide lockup, so it
+   gets more width than the square TALEEN plaque needed */
 .closing .cover-copy .house-mark{width:calc(var(--pw)*.32)}
+.closing .cover-copy .agency-mark{width:calc(var(--pw)*.5);border-radius:10px}
 /* the wordmark lives inside the plaque now; the h1 is only the fallback */
 .cover-copy h1.fb{display:none}
 .cover-copy.nomark h1.fb{display:block}
@@ -144,6 +146,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   border:none;border-radius:0;box-shadow:none}
 .leather.light .subtitle{color:#8a6a2e;font-size:15px;font-weight:600;
   letter-spacing:.04em;margin-top:4px}
+/* the agency mark, transparent cut, in the far right corner of the cover */
+.leather.light .corner-agency{position:absolute;top:34px;right:36px;z-index:3;
+  width:calc(var(--pw)*.24);height:auto}
 .leather.light h1.fb{color:#a97e35;text-shadow:none}
 /* the tagline belongs to the mark, so it travels with it everywhere.
    text-indent offsets the trailing letter-space so it stays optically centred */
@@ -349,7 +354,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=15');
+    lite.done = true; load('lite.js?v=16');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -375,7 +380,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=15').onerror = lite;
+  load('book.js?v=16').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

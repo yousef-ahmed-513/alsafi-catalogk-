@@ -165,24 +165,28 @@ function faceHTML(f){
     return `<div class="leather light">
       <div class="css-leather"></div>
       <div class="frame"></div>
+      <img class="corner-agency" src="osool-logo-t.png" alt="أصول العقارية"
+           onerror="this.remove()">
       <div class="cover-copy">
         <img class="house-mark" src="taleen-logo-cover.png" alt="TALEEN"
              onerror="this.parentNode.classList.add('nomark');this.remove()">
         <h1 class="fb">TALEEN</h1>
       </div></div>`;
   if (f.type === 'closing')
+    /* The booking page belongs to the sales agency: أصول العقارية heads it
+       (the TALEEN mark already fronts the cover and the brand pages). */
     return `<div class="leather closing">
       <div class="css-leather"></div>
       <img class="art" src="${COVER_ART}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="cover-copy">
-        <img class="house-mark" src="${LOGO}" alt="TALEEN" onerror="this.remove()">
+        <img class="house-mark agency-mark" src="osool-logo.jpg" alt="أصول العقارية"
+             onerror="this.remove()">
         <div class="tagline">${TAGLINE}</div>
         <div class="rule"></div>
         <h2>للتفاصيل والحجز</h2>
         <p class="phone">${PHONE}</p>
         <p>صلالة — بالقرب من جراند مول والسعادة</p>
-        <img class="agency" src="osool-logo.jpg" alt="أصول العقارية" onerror="this.remove()">
       </div></div>`;
   if (f.type === 'story'){
     const c = f.sc;

@@ -168,7 +168,6 @@ function faceHTML(f){
       <div class="cover-copy">
         <img class="house-mark" src="taleen-logo-cover.png" alt="TALEEN"
              onerror="this.parentNode.classList.add('nomark');this.remove()">
-        <div class="subtitle">صلالة · سلطنة عُمان</div>
         <h1 class="fb">TALEEN</h1>
       </div></div>`;
   if (f.type === 'closing')

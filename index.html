@@ -383,7 +383,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=25');
+    lite.done = true; load('lite.js?v=26');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -409,7 +409,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=25').onerror = lite;
+  load('book.js?v=26').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

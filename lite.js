@@ -26,7 +26,7 @@
 
   var html = '<div class="lite-cover">' +
     // the plaque carries the TALEEN wordmark; the text title is its fallback
-    '<img src="taleen-logo.jpg" alt="TALEEN" onerror="this.style.display=\'none\';' +
+    '<img src="taleen-logo.jpg?x=26" alt="TALEEN" onerror="this.style.display=\'none\';' +
       'document.getElementById(\'ltitle\').style.display=\'block\'">' +
     '<div class="lite-tag">INVEST IN THE BEST</div>' +
     '<div class="lite-title" id="ltitle" style="display:none">TALEEN</div>' +
@@ -36,11 +36,11 @@
     var s = SECTIONS[i];
     html += '<h2 class="lite-h" id="lsec' + i + '">' + s.label + '</h2>';
     for (var j = 0; j < s.pages.length; j++){
-      html += '<img class="lite-page" loading="lazy" src="' + pre + s.pages[j] + '" alt="">';
+      html += '<img class="lite-page" loading="lazy" src="' + pre + s.pages[j] + '?x=26" alt="">';
     }
   }
   html += '<div class="lite-foot">' +
-          '<img class="lite-agency" src="osool-logo.jpg" alt="أصول العقارية" ' +
+          '<img class="lite-agency" src="osool-logo.jpg?x=26" alt="أصول العقارية" ' +
             'onerror="this.style.display=\'none\'"><br>' +
           'للتفاصيل والحجز &middot; ' +
           '<a href="tel:+96895668000"><b>+968 9566 8000</b></a> &middot; ' +

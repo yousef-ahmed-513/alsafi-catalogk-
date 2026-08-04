@@ -69,10 +69,14 @@ const SCENES = [
    a phone over mobile data; the page there is ~185px wide, so 600px keeps
    full sharpness even pinch-zoomed. Decided once at boot. */
 const LOWRES = matchMedia('(max-width:820px), (max-height:500px)').matches;
+/* Image version tag: the scans keep their filenames when re-edited, and
+   phone caches hold on to them — bump this whenever page pixels change so
+   every device re-fetches. */
+const IMGV = '?x=26';
 // a number means pNN.jpg (images sit next to index.html); a string is a filename
 const srcOf = v => {
   const f = typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
-  return LOWRES ? `m/${f}` : f;
+  return (LOWRES ? `m/${f}` : f) + IMGV;
 };
 
 /* ---------------- running order ----------------
@@ -166,10 +170,10 @@ function faceHTML(f){
     return `<div class="leather light">
       <div class="css-leather"></div>
       <div class="frame"></div>
-      <img class="corner-agency" src="osool-logo-t.png" alt="أصول العقارية"
+      <img class="corner-agency" src="osool-logo-t.png${IMGV}" alt="أصول العقارية"
            onerror="this.remove()">
       <div class="cover-copy">
-        <img class="house-mark" src="taleen-logo-cover.png" alt="TALEEN"
+        <img class="house-mark" src="taleen-logo-cover.png${IMGV}" alt="TALEEN"
              onerror="this.parentNode.classList.add('nomark');this.remove()">
         <h1 class="fb">TALEEN</h1>
       </div></div>`;
@@ -180,7 +184,7 @@ function faceHTML(f){
       <div class="css-leather"></div>
       <div class="frame"></div>
       <div class="cover-copy">
-        <img class="house-mark agency-mark" src="osool-logo-t.png" alt="أصول العقارية"
+        <img class="house-mark agency-mark" src="osool-logo-t.png${IMGV}" alt="أصول العقارية"
              onerror="this.remove()">
         <div class="tagline">${TAGLINE}</div>
         <div class="rule"></div>
@@ -199,11 +203,11 @@ function faceHTML(f){
        a photograph's subjects live in the lower half and must stay clear */
     return `<div class="leather story-page${c.pos === 'top' ? ' top' : ''}">
       <div class="css-leather"></div>
-      ${f.side === 'left' ? `<img class="wm" src="${LOGO_WM}" alt="" onerror="this.remove()">` : ''}
+      ${f.side === 'left' ? `<img class="wm" src="${LOGO_WM}${IMGV}" alt="" onerror="this.remove()">` : ''}
       <img class="sbg" src="${srcOf(`st${c.n}.jpg`)}" alt="" decoding="async"
            onerror="this.remove()">
       <div class="scrim"></div>
-      <img class="sagency" src="osool-corner.png" alt="" onerror="this.remove()">
+      <img class="sagency" src="osool-corner.png${IMGV}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="story-copy">
         <h2 dir="rtl">${c.ar}</h2>
@@ -218,10 +222,10 @@ function faceHTML(f){
     return `<div class="leather logo-page light">
       <div class="css-leather"></div>
       <div class="frame"></div>
-      <img class="corner-agency" src="osool-logo-t.png" alt="أصول العقارية"
+      <img class="corner-agency" src="osool-logo-t.png${IMGV}" alt="أصول العقارية"
            onerror="this.remove()">
       <div class="brandmark">
-        <img class="mark" src="taleen-logo-cover.png" alt="TALEEN"
+        <img class="mark" src="taleen-logo-cover.png${IMGV}" alt="TALEEN"
              onerror="this.closest('.brandmark').classList.add('nomark');this.remove()">
         <div class="fallback">
           <div class="rule"></div>

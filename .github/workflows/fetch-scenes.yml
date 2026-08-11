@@ -2,7 +2,10 @@
 # CDN directly, so a runner fetches the generated scene photographs and
 # commits them to the working branch. Deleted once the images land.
 name: fetch-scenes
-on: workflow_dispatch
+on:
+  push:
+    branches: [claude/elegant-meitner-rkl8vs]
+    paths: ['scenes-ferry.trigger']
 permissions:
   contents: write
 jobs:

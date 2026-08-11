@@ -3,44 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TALEEN — كتالوج الوحدات</title>
-<meta name="theme-color" content="#0b1526">
+<title>الصافي عمان — كتالوج المنتجات</title>
+<meta name="theme-color" content="#241b84">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Marcellus&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#0b1526; --navy2:#101d33; --gold:#c9a35c; --gold2:#e8c98a; --ink:#0a0f1a;
+  --blue:#241b84; --blue2:#2f36b0; --aqua:#2fb9e0; --aqua2:#7fdcf5;
+  --ink:#0a0e2e; --paper:#f4f8fd;
   --pw:437px; --ph:650px;            /* page size (JS may scale) */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;
-  font-family:Tajawal,system-ui,sans-serif;background:var(--navy);color:#fff}
+  font-family:Tajawal,system-ui,sans-serif;background:var(--ink);color:#fff}
 /* dvh tracks the phone's collapsing address bar; 100% is the fallback */
 body{height:100dvh}
 body{display:flex;flex-direction:column;
   background:
-    radial-gradient(1200px 700px at 50% 18%, #1a2b4a 0%, transparent 60%),
-    radial-gradient(900px 500px at 85% 90%, rgba(201,163,92,.10) 0%, transparent 55%),
-    linear-gradient(180deg,#0d1930,#0b1526 55%,#080f1d)}
-/* subtle luxury dust */
-body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
-  background-image:radial-gradient(1.5px 1.5px at 12% 30%,rgba(232,201,138,.35),transparent 60%),
-  radial-gradient(1px 1px at 78% 22%,rgba(232,201,138,.30),transparent 60%),
-  radial-gradient(1.5px 1.5px at 60% 75%,rgba(232,201,138,.22),transparent 60%),
-  radial-gradient(1px 1px at 30% 85%,rgba(232,201,138,.25),transparent 60%),
-  radial-gradient(1px 1px at 90% 60%,rgba(232,201,138,.2),transparent 60%)}
+    radial-gradient(1200px 700px at 50% 18%, #232a7a 0%, transparent 60%),
+    radial-gradient(900px 500px at 85% 90%, rgba(47,185,224,.12) 0%, transparent 55%),
+    linear-gradient(180deg,#131a52,#0d1240 55%,#080b2c)}
+/* floating soap-bubble dust */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(2px 2px at 12% 30%,rgba(127,220,245,.4),transparent 60%),
+  radial-gradient(1.5px 1.5px at 78% 22%,rgba(127,220,245,.32),transparent 60%),
+  radial-gradient(2px 2px at 60% 75%,rgba(127,220,245,.24),transparent 60%),
+  radial-gradient(1.5px 1.5px at 30% 85%,rgba(127,220,245,.26),transparent 60%),
+  radial-gradient(1.5px 1.5px at 90% 60%,rgba(127,220,245,.2),transparent 60%)}
 
 /* ===== Top bar ===== */
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px;z-index:5}
 .brand{display:flex;align-items:center;gap:10px}
-.brand .mark{font-family:Marcellus,serif;letter-spacing:.35em;color:var(--gold2);font-size:15px}
-.brand .sep{width:1px;height:16px;background:rgba(232,201,138,.4)}
-.brand .name{font-weight:800;font-size:14px;color:#dfe6f2}
+.brand .mark{font-family:Marcellus,serif;letter-spacing:.35em;color:var(--aqua2);font-size:15px}
+.brand .sep{width:1px;height:16px;background:rgba(127,220,245,.4)}
+.brand .name{font-weight:800;font-size:14px;color:#e2ecfa}
 .top-actions{display:flex;gap:8px}
-.tbtn{border:1px solid rgba(232,201,138,.35);background:rgba(11,21,38,.5);color:var(--gold2);
+.tbtn{border:1px solid rgba(127,220,245,.4);background:rgba(13,18,64,.5);color:var(--aqua2);
   border-radius:999px;padding:8px 14px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px)}
-.tbtn:hover{background:rgba(201,163,92,.15)}
-.tbtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.tbtn:hover{background:rgba(47,185,224,.16)}
+.tbtn:focus-visible{outline:2px solid var(--aqua2);outline-offset:2px}
 
 /* ===== Stage =====
    min-height:0 is load-bearing: a flex item defaults to min-height:auto and
@@ -67,7 +68,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 /* The spread is two FLAT slots — plain divs, no transforms, rendered into
    the browser's normal page tiles. The ONLY 3D element in the document is
    the single .turn panel that exists while a page is mid-turn. An earlier
-   build kept all 27 sheets in one preserve-3d tree with backface-visibility
+   build kept all sheets in one preserve-3d tree with backface-visibility
    on every face; WebKit gives each such face its own GPU layer, rasterised
    at devicePixelRatio x pinch-zoom — on an iPhone that is gigabytes, and
    iOS killed the tab ("A problem repeatedly occurred"). Never again: keep
@@ -82,7 +83,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
 .turn.no-anim{transition:none}
 /* .front carries the LEFT-page dressing, .back the RIGHT-page dressing —
    shared by the flat slots and the panel so a turning page looks identical */
-.face{position:absolute;inset:0;background:#f7f3ea;overflow:hidden}
+.face{position:absolute;inset:0;background:var(--paper);overflow:hidden}
 .turn .face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .turn .face.back{transform:rotateY(180deg)}
 .face img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;border-radius:inherit}
@@ -94,168 +95,124 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
   background:linear-gradient(270deg, rgba(0,0,0,.20), rgba(0,0,0,.05) 12%, transparent 22%, transparent 88%, rgba(255,255,255,.06) 97%)}
 .face.back::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
   background:linear-gradient(90deg, rgba(0,0,0,.20), rgba(0,0,0,.05) 12%, transparent 22%, transparent 88%, rgba(255,255,255,.06) 97%)}
-.face.missing{background:linear-gradient(180deg,#f7f3ea,#ece5d6)}
-.face.missing::before{content:"⌘";position:absolute;inset:0;display:grid;place-items:center;
-  color:#c9b78f;font-size:34px}
+.face.missing{background:linear-gradient(180deg,#f4f8fd,#dfe9f6)}
+.face.missing::before{content:"✦";position:absolute;inset:0;display:grid;place-items:center;
+  color:#9fb9dc;font-size:34px}
 /* stacked page edges */
 .edges-r,.edges-l{position:absolute;top:6px;bottom:6px;width:14px;z-index:-1;
-  background:repeating-linear-gradient(90deg,#efe9dc 0 2px,#d9d2c2 2px 3px);border-radius:3px}
+  background:repeating-linear-gradient(90deg,#e8f0fa 0 2px,#c9d8ec 2px 3px);border-radius:3px}
 .edges-r{right:-11px;border-radius:0 4px 4px 0}
 .edges-l{left:-11px;border-radius:4px 0 0 4px}
 
-/* ===== The generated leather cover faces ===== */
-.leather{position:absolute;inset:0;background:#122036;display:grid;place-items:center;
+/* ===== The generated brand-blue cover faces ===== */
+.leather{position:absolute;inset:0;background:#1a1f6e;display:grid;place-items:center;
   border-radius:inherit;overflow:hidden}
 .leather img.art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .leather .css-leather{position:absolute;inset:0;
-  background:radial-gradient(120% 90% at 50% 30%, #1b3050 0%, #0f1c33 55%, #0a1425 100%)}
-.leather .frame{position:absolute;inset:16px;border:1.5px solid rgba(201,163,92,.85);border-radius:8px;
-  box-shadow:inset 0 0 0 4px rgba(201,163,92,.18), inset 0 0 60px rgba(0,0,0,.35)}
-.leather .frame::after{content:"";position:absolute;inset:7px;border:1px solid rgba(201,163,92,.45);border-radius:5px}
-.cover-copy{position:relative;z-index:2;text-align:center;padding:0 26px;text-shadow:0 2px 18px rgba(0,0,0,.55)}
-/* The TALEEN mark heads both covers. It is gold artwork on its own cream
-   ground (the panels fade into it, so it cannot be cut out) — shown as a
-   framed plaque: rounded corners + a hairline gold keyline. width/height
-   are explicit to beat the .face img rule that fills the page. */
-.cover-copy .house-mark{display:block;margin:0 auto 16px;
-  width:calc(var(--pw)*.46);height:auto;object-fit:contain;
-  border-radius:12px;border:1px solid rgba(201,163,92,.65);
-  box-shadow:0 0 0 4px rgba(201,163,92,.15), 0 14px 34px rgba(0,0,0,.5)}
-/* the closing cover is off-white like the front, headed by the agency
-   mark — the transparent cut, large and centred, straight on the cream */
-.closing.light .cover-copy .agency-mark{width:calc(var(--pw)*.62);
-  border:none;border-radius:0;box-shadow:none;margin-bottom:22px}
-.leather.light .tagline{color:#a97e35;opacity:1}
-.closing.light .cover-copy h2{color:#233044}
-.closing.light .cover-copy p{color:#3d4a5c}
-.closing.light .cover-copy .phone{color:#8a6a2e}
-.closing.light .cover-copy .rule{background:linear-gradient(90deg,transparent,#b38a40,transparent)}
-/* the wordmark lives inside the plaque now; the h1 is only the fallback */
+  background:radial-gradient(120% 90% at 50% 30%, #2f36b0 0%, #241b84 55%, #151a5e 100%)}
+/* a gentle darkening over the art so the white mark and copy always read */
+.leather .shade{position:absolute;inset:0;
+  background:radial-gradient(90% 70% at 50% 42%, rgba(10,10,40,.10) 0%, rgba(10,10,46,.42) 100%)}
+.leather .frame{position:absolute;inset:16px;border:1.5px solid rgba(127,220,245,.75);border-radius:8px;
+  box-shadow:inset 0 0 0 4px rgba(47,185,224,.16), inset 0 0 60px rgba(4,6,30,.35)}
+.leather .frame::after{content:"";position:absolute;inset:7px;border:1px solid rgba(127,220,245,.4);border-radius:5px}
+.cover-copy{position:relative;z-index:2;text-align:center;padding:0 26px;text-shadow:0 2px 18px rgba(4,6,30,.6)}
+/* The ALSAFI mark heads both covers: white line-art on transparent, straight
+   on the blue. width/height are explicit to beat the .face img rule that
+   fills the page. */
+.cover-copy .house-mark{display:block;margin:0 auto 20px;
+  width:calc(var(--pw)*.52);height:auto;object-fit:contain;
+  filter:drop-shadow(0 8px 26px rgba(4,6,30,.55))}
+/* the wordmark lives inside the mark; the h1 is only the fallback */
 .cover-copy h1.fb{display:none}
 .cover-copy.nomark h1.fb{display:block}
-/* ===== The light (off-white) front cover =====
-   Same cream ground as the TALEEN artwork; multiply blending melts the
-   mark's own white ground into the cover so no plaque box shows. */
-.leather.light .css-leather{background:
-  radial-gradient(120% 90% at 50% 32%, #ffffff 0%, #faf7f0 55%, #efe9db 100%)}
-/* no z-index here: a stacking context would isolate the mark's multiply
-   blend from the cover ground beneath, bringing the white box back */
-.leather.light .cover-copy{z-index:auto}
-.leather.light .frame{border-color:rgba(179,138,64,.9);
-  box-shadow:inset 0 0 0 4px rgba(179,138,64,.16), inset 0 0 60px rgba(139,109,53,.10)}
-.leather.light .frame::after{border-color:rgba(179,138,64,.45)}
-.leather.light .cover-copy{text-shadow:none}
-/* transparent line-art cut of the mark: its open panels show the cover's
-   own cream, which is what the artwork's ground was anyway — no box at all */
-.leather.light .house-mark{width:calc(var(--pw)*.6);
-  border:none;border-radius:0;box-shadow:none}
-.leather.light .subtitle{color:#8a6a2e;font-size:15px;font-weight:600;
-  letter-spacing:.04em;margin-top:4px}
-/* the agency mark, transparent cut, in the far right corner of the cover */
-.leather.light .corner-agency{position:absolute;top:34px;right:36px;z-index:3;
-  width:calc(var(--pw)*.24);height:auto}
-.leather.light h1.fb{color:#a97e35;text-shadow:none}
+.cover-copy h1{font-family:Marcellus,serif;font-weight:400;color:#fff;font-size:44px;letter-spacing:.12em;margin:0 0 8px;line-height:1.1}
+.cover-copy .rule{width:64px;height:1px;background:linear-gradient(90deg,transparent,var(--aqua2),transparent);margin:0 auto 18px}
+.cover-copy .ar-title{font-weight:800;font-size:23px;color:#fff;margin:0 0 8px}
+.cover-copy .subtitle{font-size:12px;color:var(--aqua2);font-weight:500;letter-spacing:.34em;text-indent:.34em}
+.cover-copy .year{margin-top:26px;display:inline-block;padding:6px 22px;border:1px solid rgba(127,220,245,.6);
+  border-radius:999px;color:#eaf6ff;letter-spacing:.4em;text-indent:.4em;font-size:12px}
+.closing .cover-copy h2{font-weight:800;font-size:24px;color:#fff;margin:0 0 10px}
+.closing .cover-copy .en-line{font-size:12px;color:var(--aqua2);letter-spacing:.26em;margin:0 0 26px}
+.closing .cover-copy .made{font-size:14.5px;font-weight:700;color:#eaf6ff;margin:4px 0}
+.closing .cover-copy .loc{font-size:13px;color:#b9cdea;margin:4px 0}
 /* the tagline belongs to the mark, so it travels with it everywhere.
    text-indent offsets the trailing letter-space so it stays optically centred */
-.tagline{font-family:Marcellus,serif;text-transform:uppercase;color:var(--gold2);
-  text-align:center;white-space:nowrap;text-indent:.34em;letter-spacing:.34em}
-.cover-copy .tagline{font-size:10.5px;opacity:.92;margin-bottom:20px}
-.cover-copy .rule{width:64px;height:1px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);margin:0 auto 18px}
-.cover-copy h1{font-family:Marcellus,serif;font-weight:400;color:var(--gold2);font-size:44px;letter-spacing:.12em;margin:0 0 8px;line-height:1.1}
-.cover-copy .ar-title{font-weight:800;font-size:21px;color:#f1e7d2;margin:0 0 26px}
-.cover-copy .subtitle{font-size:13.5px;color:#cfd8e6;font-weight:500;letter-spacing:.05em}
-.cover-copy .year{margin-top:30px;font-family:Marcellus,serif;color:rgba(232,201,138,.8);letter-spacing:.4em;font-size:12px}
-.closing .cover-copy h2{font-weight:800;font-size:26px;color:#f1e7d2;margin:0 0 14px}
-.closing .cover-copy p{margin:6px 0;color:#dfe6f2;font-size:14.5px}
-/* the sales agency mark (أصول العقارية): dark lettering on white, so it is
-   framed as a light plaque like the TALEEN mark above it */
-.closing .cover-copy .agency{display:block;margin:26px auto 0;
-  width:calc(var(--pw)*.44);height:auto;object-fit:contain;
-  border-radius:10px;border:1px solid rgba(201,163,92,.55);
-  box-shadow:0 0 0 4px rgba(201,163,92,.12), 0 10px 26px rgba(0,0,0,.45)}
-.closing .cover-copy .phone{direction:ltr;font-size:16.5px;
-  font-weight:800;color:var(--gold2);letter-spacing:.06em;margin:4px 0}
+.tagline{font-family:Marcellus,serif;text-transform:uppercase;color:var(--aqua2);
+  text-align:center;white-space:nowrap;text-indent:.3em;letter-spacing:.3em}
 
 /* ===== The brand pages: facing the poster, and facing the price list ===== */
 .logo-page .brandmark{position:relative;z-index:2;display:grid;place-items:center;width:100%}
 /* sized in page units so it scales with the book; width/height set explicitly
    to override the .face img rule that would otherwise stretch it to fill */
-.logo-page .brandmark img.mark{width:calc(var(--pw)*.6);height:auto;
+.logo-page .brandmark img.mark{width:calc(var(--pw)*.56);height:auto;
   max-height:calc(var(--ph)*.52);object-fit:contain;
-  border-radius:14px;border:1px solid rgba(201,163,92,.65);
-  box-shadow:0 0 0 5px rgba(201,163,92,.15), 0 18px 42px rgba(0,0,0,.55)}
-/* on the light brand pages the mark is the transparent cut, no box at all */
-.logo-page.light .brandmark img.mark{width:calc(var(--pw)*.64);
-  max-height:calc(var(--ph)*.58);border:none;border-radius:0;box-shadow:none}
-.logo-page.light .fallback h1{color:#a97e35;text-shadow:none}
-.logo-page.light .fallback .rule{background:linear-gradient(90deg,transparent,#b38a40,transparent)}
-.logo-page .tagline{font-size:15px;margin-top:26px;opacity:.95}
-
-/* ===== Story chapter spreads =====
-   Right page carries the chapter; left page answers with a pull-quote over a
-   watermark of the mark and three facts from the catalogue. No letter-spacing
-   on the Arabic — spaced-out Arabic visually severs the joined letters. */
-/* the scene photograph, full bleed under the frame; text sits low over a
-   scrim so the picture breathes and every line still reads */
-.story-page img.sbg{position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover}
-/* the single-line sentence sits at ~70% of the frame (a 70:30 split), over
-   a soft band scrim; a light top vignette keeps the corner mark readable */
-.story-page .scrim{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg, rgba(8,13,24,.30) 0%, rgba(8,13,24,.05) 20%,
-    transparent 44%, rgba(8,13,24,.44) 60%, rgba(8,13,24,.48) 76%,
-    transparent 90%, rgba(8,13,24,.16) 100%)}
-.leather.story-page{place-items:center}
-.story-page .story-copy{position:relative;z-index:2;text-align:center;
-  padding:0 26px;text-shadow:0 2px 14px rgba(0,0,0,.7);
-  transform:translateY(calc(var(--ph)*.185))}
-.story-page .orn{color:rgba(232,201,138,.8);font-size:13px;margin-bottom:18px}
-.story-page .scene-no{font-family:Marcellus,serif;font-size:15px;letter-spacing:.4em;
-  text-indent:.4em;color:rgba(232,201,138,.75);margin-bottom:14px}
-.story-page .kicker{font-size:15px;font-weight:700;color:var(--gold2);margin-bottom:18px}
-/* the sentence holds ONE line — sized so the longest scene still fits */
-.story-page h2{font-weight:800;font-size:16px;color:#f7efdd;margin:0 0 12px;
-  line-height:1.7;white-space:nowrap}
-.story-copy .rule{width:56px;height:1px;margin:0 auto 12px;
-  background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
-.story-page .en{font-family:Marcellus,serif;font-size:9.5px;letter-spacing:.12em;
-  color:rgba(232,201,138,.9);line-height:1.8;white-space:nowrap}
-.story-page .wm{position:absolute;width:82%;top:50%;left:50%;transform:translate(-50%,-54%);
-  opacity:.055;object-fit:contain;border-radius:0}
-/* the agency mark rides the right corner of every scene page — transparent,
-   bold, white lettering with its own baked shadow */
-.story-page .sagency{position:absolute;top:28px;right:30px;z-index:3;
-  width:calc(var(--pw)*.26);height:auto;object-fit:contain}
+  filter:drop-shadow(0 10px 30px rgba(4,6,30,.5))}
+.logo-page .tagline{font-size:13px;margin-top:28px;opacity:.95}
 .logo-page .fallback{display:none;text-align:center}
 .logo-page .brandmark.nomark .fallback{display:block}
-.logo-page .fallback h1{font-family:Marcellus,serif;font-weight:400;color:var(--gold2);
+.logo-page .fallback h1{font-family:Marcellus,serif;font-weight:400;color:#fff;
   font-size:54px;letter-spacing:.42em;margin:22px 0;
   /* letter-spacing pads the right side of the last glyph; nudge it back to centre */
-  text-indent:.42em;text-shadow:0 2px 18px rgba(0,0,0,.55)}
+  text-indent:.42em;text-shadow:0 2px 18px rgba(4,6,30,.55)}
 .logo-page .fallback .rule{width:150px;height:1px;margin:0 auto;
-  background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
+  background:linear-gradient(90deg,transparent,var(--aqua2),transparent)}
+
+/* ===== Story chapter spreads =====
+   The scene photograph runs full bleed under the frame; the single-line
+   sentence sits at ~70% of the frame over a soft band scrim, so the picture
+   breathes and every line still reads. No letter-spacing on the Arabic —
+   spaced-out Arabic visually severs the joined letters. */
+.story-page img.sbg{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover}
+.story-page .scrim{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg, rgba(6,9,36,.30) 0%, rgba(6,9,36,.05) 20%,
+    transparent 44%, rgba(6,9,36,.44) 60%, rgba(6,9,36,.48) 76%,
+    transparent 90%, rgba(6,9,36,.16) 100%)}
+.leather.story-page{place-items:center}
+.story-page .story-copy{position:relative;z-index:2;text-align:center;
+  padding:0 26px;text-shadow:0 2px 14px rgba(4,6,30,.75);
+  transform:translateY(calc(var(--ph)*.185))}
+/* pos:'top' floats the copy at the head of the frame instead — used when a
+   photograph's subjects live in the lower half and must stay clear */
+.story-page.top .story-copy{transform:translateY(calc(var(--ph)*-.3))}
+.story-page.top .scrim{background:linear-gradient(0deg, rgba(6,9,36,.26) 0%, rgba(6,9,36,.03) 22%,
+    transparent 48%, rgba(6,9,36,.46) 72%, rgba(6,9,36,.5) 88%, rgba(6,9,36,.52) 100%)}
+/* the sentence holds ONE line — sized so the longest scene still fits */
+.story-page h2{font-weight:800;font-size:16px;color:#fff;margin:0 0 12px;
+  line-height:1.7;white-space:nowrap}
+.story-copy .rule{width:56px;height:1px;margin:0 auto 12px;
+  background:linear-gradient(90deg,transparent,var(--aqua2),transparent)}
+.story-page .en{font-family:Marcellus,serif;font-size:9.5px;letter-spacing:.12em;
+  color:#cfeefb;line-height:1.8;white-space:nowrap}
+.story-page .wm{position:absolute;width:78%;top:50%;left:50%;transform:translate(-50%,-54%);
+  opacity:.05;object-fit:contain;border-radius:0}
+/* the white mark rides the right corner of every scene page */
+.story-page .sagency{position:absolute;top:26px;right:28px;z-index:3;
+  width:calc(var(--pw)*.17);height:auto;object-fit:contain;
+  filter:drop-shadow(0 2px 10px rgba(4,6,30,.6))}
 
 /* ===== Bottom bar ===== */
 .bottombar{z-index:5;padding:10px 16px 16px;display:flex;flex-direction:column;gap:10px;align-items:center}
 .chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;min-width:0}
 .progress{width:min(560px,86vw);height:3px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
-.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--aqua),var(--aqua2));transition:width .5s}
 .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
-.chip{border:1px solid rgba(255,255,255,.16);background:rgba(16,29,51,.6);color:#dfe6f2;border-radius:999px;
+.chip{border:1px solid rgba(255,255,255,.16);background:rgba(19,26,82,.6);color:#e2ecfa;border-radius:999px;
   padding:7px 13px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px)}
-.chip:hover{border-color:rgba(232,201,138,.6);color:var(--gold2)}
-.chip.active{background:rgba(201,163,92,.18);border-color:var(--gold);color:var(--gold2)}
-.chip:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
-.counter{font-size:12px;color:#9fb0c8;letter-spacing:.06em;min-width:70px;text-align:center}
-.navbtn{width:42px;height:42px;border-radius:50%;border:1px solid rgba(232,201,138,.4);cursor:pointer;
-  background:rgba(11,21,38,.55);color:var(--gold2);font-size:20px;line-height:1;backdrop-filter:blur(6px)}
-.navbtn:hover{background:rgba(201,163,92,.18)}
+.chip:hover{border-color:rgba(127,220,245,.6);color:var(--aqua2)}
+.chip.active{background:rgba(47,185,224,.2);border-color:var(--aqua);color:var(--aqua2)}
+.chip:focus-visible{outline:2px solid var(--aqua2);outline-offset:2px}
+.counter{font-size:12px;color:#9fb4d8;letter-spacing:.06em;min-width:70px;text-align:center}
+.navbtn{width:42px;height:42px;border-radius:50%;border:1px solid rgba(127,220,245,.45);cursor:pointer;
+  background:rgba(13,18,64,.55);color:var(--aqua2);font-size:20px;line-height:1;backdrop-filter:blur(6px)}
+.navbtn:hover{background:rgba(47,185,224,.2)}
 .navbtn:disabled{opacity:.3;cursor:default}
-.navbtn:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.navbtn:focus-visible{outline:2px solid var(--aqua2);outline-offset:2px}
 
 /* first-time hint */
 .hint{position:fixed;inset-inline:0;bottom:110px;display:grid;place-items:center;z-index:9;pointer-events:none}
-.hint span{background:rgba(10,15,26,.8);border:1px solid rgba(232,201,138,.4);color:#f1e7d2;font-size:13px;
+.hint span{background:rgba(8,11,44,.82);border:1px solid rgba(127,220,245,.45);color:#eaf6ff;font-size:13px;
   padding:10px 18px;border-radius:999px;backdrop-filter:blur(8px);animation:hintfloat 2.2s ease-in-out infinite}
 @keyframes hintfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .hint.hide{display:none}
@@ -269,24 +226,23 @@ body.lite-mode .progress{display:none}
 body.lite-mode .navbtn{display:none}
 body.lite-mode .counter{display:none}
 body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
-  background:rgba(8,15,29,.96);border-top:1px solid rgba(232,201,138,.25);
+  background:rgba(7,10,40,.96);border-top:1px solid rgba(127,220,245,.3);
   padding:8px 0;margin:0}
 .lite{max-width:640px;margin:0 auto;padding:0 12px 96px}
 .lite-cover{text-align:center;padding:26px 10px 6px}
-.lite-cover img{width:210px;height:auto;border-radius:12px;
-  border:1px solid rgba(201,163,92,.55)}
-.lite-tag{font-family:Marcellus,serif;color:#e8c98a;font-size:11px;
+.lite-cover img{width:210px;height:auto;border-radius:16px;
+  border:1px solid rgba(127,220,245,.55)}
+.lite-tag{font-family:Marcellus,serif;color:#7fdcf5;font-size:11px;
   letter-spacing:.3em;margin-top:10px}
-.lite-title{font-family:Marcellus,serif;color:#e8c98a;font-size:34px;
-  letter-spacing:.15em;margin-top:8px}
-.lite-sub{color:#cfd8e6;font-size:13px;margin-top:6px}
-.lite-h{color:#e8c98a;font-size:16px;font-weight:700;text-align:center;
+.lite-title{font-family:Marcellus,serif;color:#7fdcf5;font-size:34px;
+  letter-spacing:.15em;margin-top:8px;display:none}
+.lite-sub{color:#cfe0f5;font-size:13px;margin-top:6px}
+.lite-h{color:#7fdcf5;font-size:16px;font-weight:700;text-align:center;
   margin:26px 0 10px}
 .lite-page{width:100%;height:auto;display:block;margin:0 0 10px;border-radius:8px}
-.lite-foot{text-align:center;color:#cfd8e6;font-size:14px;padding:18px 0}
-.lite-agency{width:190px;height:auto;border-radius:8px;
-  border:1px solid rgba(201,163,92,.5);margin-bottom:10px}
-.lite-foot a{color:#e8c98a;text-decoration:none;direction:ltr;unicode-bidi:embed}
+.lite-foot{text-align:center;color:#cfe0f5;font-size:14px;padding:18px 0}
+.lite-foot img{width:190px;height:auto;border-radius:12px;
+  border:1px solid rgba(127,220,245,.5);margin-bottom:10px}
 
 @media (prefers-reduced-motion:reduce){
   .turn,.book{transition:transform .01s}
@@ -325,7 +281,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
 @media (min-width:560px){ .counter{display:block;min-width:58px;font-size:11px} }
 
 /* A phone on its side has ~390px of height for a 2:3 page — every pixel of
-   chrome comes straight out of the floor plan. */
+   chrome comes straight out of the catalogue. */
 @media (max-height:500px) and (orientation:landscape){
   .topbar{padding:5px 14px}
   .brand .name{display:none}
@@ -341,7 +297,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
 
 <header class="topbar">
   <div class="brand">
-    <span class="mark">TALEEN</span><span class="sep"></span><span class="name">كتالوج الوحدات</span>
+    <span class="mark">ALSAFI</span><span class="sep"></span><span class="name">كتالوج المنتجات</span>
   </div>
   <div class="top-actions">
     <button class="tbtn" id="fsBtn" type="button">ملء الشاشة</button>
@@ -383,7 +339,7 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
   }
   function lite(){
     if (window.__bookOK || window.__liteOK || lite.done) return;
-    lite.done = true; load('lite.js?v=26');
+    lite.done = true; load('lite.js?v=30');
   }
   if (window.location.search.indexOf('lite=1') > -1){ lite(); return; }
   var modern = false;
@@ -401,15 +357,15 @@ body.lite-mode .bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
      that never got erased mean the tab is crash-looping on this device —
      the third load gets the lite catalogue instead of a third crash. */
   try{
-    var rec = (localStorage.getItem('taleenCrash') || '').split(',');
+    var rec = (localStorage.getItem('alsafiCrash') || '').split(',');
     var n = +rec[0] || 0, ts = +rec[1] || 0, now = +new Date();
     if (now - ts > 120000) n = 0;
-    if (n >= 2){ localStorage.removeItem('taleenCrash'); lite(); return; }
-    localStorage.setItem('taleenCrash', (n + 1) + ',' + now);
+    if (n >= 2){ localStorage.removeItem('alsafiCrash'); lite(); return; }
+    localStorage.setItem('alsafiCrash', (n + 1) + ',' + now);
   }catch(e){}
   window.addEventListener('error', lite);
   window.__bookReady = function(){ window.removeEventListener('error', lite); };
-  load('book.js?v=26').onerror = lite;
+  load('book.js?v=30').onerror = lite;
   setTimeout(lite, 12000);   // watchdog: a silent boot hang also lands on lite
 })();
 </script>

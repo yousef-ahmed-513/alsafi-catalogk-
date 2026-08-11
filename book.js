@@ -1,26 +1,26 @@
 (() => {
 'use strict';
-/* ================= TALEEN flipbook — RTL (Arabic) =================
+/* ================= ALSAFI Oman flipbook — RTL (Arabic) =================
    Always a real two-page book, on every screen. Pages are turned by
    dragging the paper with a finger (or the mouse) — the sheet follows the
    pointer and settles when released — with the chips and arrows kept as a
    shortcut. Pinch or double-tap magnifies the spread, which is how the
-   dimension text stays readable when the book is scaled down on a phone.
+   price text stays readable when the book is scaled down on a phone.
 
    HOW IT IS DRAWN — and why. The spread is two FLAT page slots (.pg.right
    and .pg.left): plain positioned divs, no transforms, no 3D, rendered into
    the normal page tiles like any web content. The ONLY 3D element in the
    whole document is the single .turn panel created while a page is actually
    mid-turn, and it is removed the moment the turn settles. An earlier build
-   kept all 27 sheets in one preserve-3d tree with backface-visibility on
-   every face; WebKit promotes each such face to its own GPU layer and
-   re-rasterises every layer at devicePixelRatio x pinch-zoom scale — on an
-   iPhone (3x screen, zoom up to 4x) that is gigabytes of layer memory, and
+   of this engine kept all sheets in one preserve-3d tree with
+   backface-visibility on every face; WebKit promotes each such face to its
+   own GPU layer and re-rasterises every layer at devicePixelRatio x
+   pinch-zoom scale — on an iPhone that is gigabytes of layer memory, and
    iOS killed the tab: "A problem repeatedly occurred". Flat slots + one
    transient panel is the shape WebKit can never blow up on.
 
    Faces (spread reading order):
-   0        = leather cover (front)
+   0        = cover (front)
    1        = brand page facing the poster
    2..N+1   = the catalogue pages, in SECTIONS order
    N+2      = brand page facing the price list
@@ -30,49 +30,51 @@
    Turning forward flips sheet f (left half -> right half, rotateY 0->180);
    turning back un-flips sheet f-1 (180->0). RTL: the right page reads first. */
 
-const COVER_ART = 'cover-art.jpg';            // leather art (optional, CSS fallback)
-/* The TALEEN mark, as supplied: gold artwork on a cream ground. The panels
-   of the artwork fade into that ground, so it cannot be cut out cleanly —
-   it is shown as a framed plaque instead (rounded corners + gold keyline in
-   CSS), which keeps the designer's gradients untouched. LOGO_WM is a
-   transparent line-art cut of the same mark used ONLY for the faint story
-   watermark, where its rough panel edges are invisible at 5% opacity. */
-const LOGO    = 'taleen-logo.jpg';
-const LOGO_WM = 'taleen-logo-wm.png';
-const PHONE  = '+968 9566 8000';
-const PHONE2 = '+968 9331 1000';
-const TAGLINE = 'INVEST IN THE BEST';         // sits under the mark wherever it appears
+const COVER_ART = 'cover-art.jpg';            // blue bubble art (optional, CSS fallback)
+/* The ALSAFI mark: alsafi-white.png is the wordmark (Arabic + Latin +
+   tagline) cut to transparent white line-art — it sits directly on the blue
+   covers, the two brand pages, the story-page corners and the faint story
+   watermark. alsafi-boxed.png (white art on the brand-blue square) is kept
+   for the lite viewer, which shows it on a light ground. */
+const LOGO_W  = 'alsafi-white.png';
+const TAGLINE    = 'YOUR TRUST IS OUR SUCCESS';   // sits under the mark wherever it appears
+const TAGLINE_AR = 'ثقتكم بنا أساس نجاحنا';
 
 /* ---------------- the storyboard ----------------
-   Fourteen scenes, verbatim from the brief, two per spread — right page then
-   left, in RTL reading order — threaded before every section. A spread is 2
-   pages, so the even-count rule that keeps every section opening on a
-   right-hand page still holds. A section's `story` is its spread index. */
+   Eighteen scenes, two per spread — right page then left, in RTL reading
+   order — threaded before every section. A spread is 2 pages, so the
+   even-count rule that keeps every section opening on a right-hand page
+   still holds. A section's `story` is its spread index; scene photographs
+   are st01.jpg .. st18.jpg, numbered like the scenes. */
 const SCENES = [
-  { n:'01', t:'البداية',          ar:'كل مشروع ناجح… يبدأ من عنوانٍ مميز.',            en:'Every Success Begins with the Right Address.' },
-  { n:'02', t:'الموقع',           ar:'في قلب صلالة… تبدأ فرص الأعمال بالنمو.',          en:'At the Heart of Salalah, Opportunities Grow.' },
-  { n:'03', t:'الرؤية',           ar:'نصنع بيئة تجارية تجمع بين الأناقة والنجاح.',      en:'Designed for Business. Built for Success.' },
-  { n:'04', t:'الاستثمار',        ar:'استثمار اليوم… هو نجاح الغد.',                    en:'Invest Today. Thrive Tomorrow.', pos:'top' },
-  { n:'05', t:'الحركة',           ar:'حيث يلتقي الموقع الاستراتيجي بالحركة اليومية.',   en:'Where Location Meets Opportunity.' },
-  { n:'06', t:'القيمة',           ar:'مساحات صُممت لتمنح أعمالك حضورًا أقوى.',          en:'Spaces Designed to Elevate Your Business.' },
-  { n:'07', t:'العملاء',          ar:'كل خطوة داخل المبنى… تقرّبك من عميل جديد.',       en:'Every Step Brings You Closer to Your Customers.' },
-  { n:'08', t:'الجودة',           ar:'تفاصيل مدروسة… وتجربة استثنائية.',                en:'Crafted with Purpose.' },
-  { n:'09', t:'صلالة',            ar:'حيث تبدأ حكاية الخريف… وتزدهر الأعمال.',          en:'Where the Monsoon Inspires Business.' },
-  { n:'10', t:'الثقة',            ar:'عنوان يليق بطموحك… وثقة تستحقها.',                en:'A Place Worth Your Ambition.' },
-  { n:'11', t:'المستقبل',         ar:'المستقبل يبدأ من المكان الصحيح.',                 en:'The Future Starts Here.' },
-  { n:'12', t:'النجاح',           ar:'ليس مجرد مبنى… بل وجهة للأعمال.',                 en:'More Than a Building. A Business Destination.' },
-  { n:'13', t:'الفرصة',           ar:'فرصتك اليوم… في موقع يصنع الفرق.',                en:'Your Opportunity Starts Here.' },
-  { n:'14', t:'النهاية (الخاتمة)', ar:'ابدأ مشروعك… واترك عنوانك يتحدث عن نجاحك.',      en:'Build Your Business. Define Your Success.' },
+  { n:'01', t:'البداية',  ar:'النظافة الحقيقية… تبدأ من راحة يديك',        en:'True Cleanliness Begins in Your Hands' },
+  { n:'02', t:'العطور',   ar:'خمسة عطور… ولمسة نقاء تدوم طوال اليوم',      en:'Five Fragrances. One Lasting Touch' },
+  { n:'03', t:'المطبخ',   ar:'صحون تلمع… ومطبخ يتنفّس الانتعاش',           en:'Dishes That Sparkle. A Kitchen That Breathes' },
+  { n:'04', t:'اللطف',    ar:'قوة تذيب الدهون… ولطف يحافظ على يديك',       en:'Tough on Grease. Gentle on Hands' },
+  { n:'05', t:'اللمعان',  ar:'زجاج صافٍ… وأسطح تعكس اهتمامك',              en:'Clear Glass. Surfaces That Reflect Your Care' },
+  { n:'06', t:'الأرضيات', ar:'أرضيات تلمع… وعطر يرحّب بضيوفك',             en:'Floors That Shine. A Scent That Welcomes' },
+  { n:'07', t:'الحماية',  ar:'حماية طبية… تحيط بمن تحب',                   en:'Medical-Grade Care for the Ones You Love' },
+  { n:'08', t:'الثقة',    ar:'يقضي على 99.9% من الجراثيم… لراحة بالك',     en:'99.9% Germ Protection. Peace of Mind' },
+  { n:'09', t:'الانتعاش', ar:'رشّة واحدة… تغيّر مزاج المكان كله',          en:'One Spray Changes the Whole Room' },
+  { n:'10', t:'البيت',    ar:'بيتك يستحق أن يستقبلك بأجمل عطر',            en:'Your Home Deserves a Beautiful Welcome' },
+  { n:'11', t:'الألوان',  ar:'ألوان تنبض بالحياة… ونظافة تُرى من بعيد',    en:'Colours Alive. Cleanliness You Can See' },
+  { n:'12', t:'النقاء',   ar:'نظافة عميقة… وانتعاش يرافقك طوال اليوم',     en:'Deep Clean. All-Day Freshness' },
+  { n:'13', t:'الأمان',   ar:'بيت آمن… بلا ضيوف مزعجين',                   en:'A Safe Home. No Unwelcome Guests' },
+  { n:'14', t:'السهرة',   ar:'استمتع بلياليك الهادئة… ودع الحماية علينا',  en:'Enjoy Your Evenings. We Handle the Rest', pos:'top' },
+  { n:'15', t:'التوفير',  ar:'جودة أعلى… وسعر يوفّر أكثر',                 en:'Better Quality. Bigger Savings' },
+  { n:'16', t:'الباقات',  ar:'باقات متكاملة… تكفي بيتك كله',               en:'Complete Bundles for Your Whole Home' },
+  { n:'17', t:'عُمان',    ar:'صناعة عُمانية… بمعايير عالمية',              en:'Proudly Made in Oman' },
+  { n:'18', t:'الوعد',    ar:'ثقتكم بنا… أساس نجاحنا',                     en:'Your Trust Is Our Success' },
 ];
-/* Phones get the m/ image set: same scans at 600px — 2.9MB for the whole book
-   instead of 6.8MB, and a fraction of the decode work. The QR audience is on
-   a phone over mobile data; the page there is ~185px wide, so 600px keeps
-   full sharpness even pinch-zoomed. Decided once at boot. */
+/* Phones get the m/ image set: the same pages at 600px — a fraction of the
+   bytes and the decode work. The catalogue audience is on a phone over
+   mobile data; the page there is ~185px wide, so 600px keeps full sharpness
+   even pinch-zoomed. Decided once at boot. */
 const LOWRES = matchMedia('(max-width:820px), (max-height:500px)').matches;
-/* Image version tag: the scans keep their filenames when re-edited, and
+/* Image version tag: the pages keep their filenames when re-rendered, and
    phone caches hold on to them — bump this whenever page pixels change so
    every device re-fetches. */
-const IMGV = '?x=26';
+const IMGV = '?x=30';
 // a number means pNN.jpg (images sit next to index.html); a string is a filename
 const srcOf = v => {
   const f = typeof v === 'number' ? `p${String(v).padStart(2,'0')}.jpg` : v;
@@ -84,23 +86,20 @@ const srcOf = v => {
    what the section chips say. Two rules when editing it:
      • keep every section an even number of pages, or every section after it
        straddles a spread instead of starting on a right-hand page;
-     • units run 01, 02, 03, 04 then the studios. The scans are NOT numbered
-       in that order — pNN.jpg holds D-03, D-04, D-01, D-02, S01, S02 per
-       floor — which is why each floor below reads 4,5,2,3,6,7 and not 2..7.
-
-   The shops are mezzanine retail, so they close out the mezzanine. They were
-   supplied as ~2MB PNGs on a grey mat at four different sizes; s01..s04.jpg
-   are those pages cropped to their own frame and normalised to 867x1300 to
-   match p01..p32.  */
+     • pages were rendered in reading order (p01..p24), so — unlike the
+       building scans this engine was first built for — the arrays below
+       simply count upward. */
 const SECTIONS = [
-  { key:'poster',    label:'البوستر',   pages:[1] },
-  { key:'mezzanine', label:'الميزانين', story:0, pages:[4,5,2,3,6,7] },
-  { key:'shops',     label:'المحلات',   story:1, pages:['s01.jpg','s02.jpg','s03.jpg','s04.jpg'] },
-  { key:'floor1',    label:'الدور 1',   story:2, pages:[10,11,8,9,12,13] },
-  { key:'floor2',    label:'الدور 2',   story:3, pages:[16,17,14,15,18,19] },
-  { key:'floor3',    label:'الدور 3',   story:4, pages:[22,23,20,21,24,25] },
-  { key:'floor4',    label:'الدور 4',   story:5, pages:[28,29,26,27,30,31] },
-  { key:'prices',    label:'الأسعار',   story:6, pages:[32] },
+  { key:'intro',   label:'البداية',         pages:[1] },
+  { key:'hand',    label:'غسول اليدين',     story:0, pages:[2,3,4,5,6,7,8,9] },
+  { key:'dish',    label:'الصحون',          story:1, pages:[10,11] },
+  { key:'surface', label:'الأسطح',          story:2, pages:[12,13] },
+  { key:'medical', label:'المطهر الطبي',    story:3, pages:[14,15] },
+  { key:'air',     label:'معطر الجو',       story:4, pages:[16,17] },
+  { key:'laundry', label:'الملابس',         story:5, pages:[18,19] },
+  { key:'pest',    label:'مكافحة الحشرات',  story:6, pages:[20,21] },
+  { key:'offers',  label:'العروض',          story:7, pages:[22,23] },
+  { key:'prices',  label:'الأسعار',         story:8, pages:[24] },
 ];
 /* A section with a story opens on a full chapter spread — right page then
    left — before its own pages. A spread is 2 pages, so the even-count rule
@@ -163,51 +162,53 @@ function faceHTML(f){
     return `<img src="${f.src}" alt="" decoding="async"
       onerror="this.closest('.face').classList.add('missing');this.remove()">`;
   if (f.type === 'cover')
-    /* Off-white cover, per the brief: the same cream ground as the TALEEN
-       artwork so the mark sits directly on the cover (multiply blend melts
-       its white ground away), the gold frame kept, and no other copy —
-       the wordmark and Salalah live inside the mark itself. */
-    return `<div class="leather light">
+    /* Brand-blue cover: the bubble art (or the CSS gradient fallback), a
+       hairline aqua frame, and the white ALSAFI mark — which carries the
+       wordmark, "Oman" and the tagline inside itself — over the title. */
+    return `<div class="leather">
       <div class="css-leather"></div>
+      <img class="art" src="${COVER_ART}${IMGV}" alt="" onerror="this.remove()">
+      <div class="shade"></div>
       <div class="frame"></div>
-      <img class="corner-agency" src="osool-logo-t.png${IMGV}" alt="أصول العقارية"
-           onerror="this.remove()">
       <div class="cover-copy">
-        <img class="house-mark" src="taleen-logo-cover.png${IMGV}" alt="TALEEN"
+        <img class="house-mark" src="${LOGO_W}${IMGV}" alt="ALSAFI"
              onerror="this.parentNode.classList.add('nomark');this.remove()">
-        <h1 class="fb">TALEEN</h1>
+        <h1 class="fb en">ALSAFI</h1>
+        <div class="rule"></div>
+        <div class="ar-title">كتالوج المنتجات</div>
+        <div class="subtitle en">PRODUCT CATALOGUE</div>
+        <div class="year en">2026</div>
       </div></div>`;
   if (f.type === 'closing')
-    /* The booking page belongs to the sales agency: أصول العقارية heads it
-       (the TALEEN mark already fronts the cover and the brand pages). */
-    return `<div class="leather closing light">
+    return `<div class="leather closing">
       <div class="css-leather"></div>
+      <img class="art" src="${COVER_ART}${IMGV}" alt="" onerror="this.remove()">
+      <div class="shade"></div>
       <div class="frame"></div>
       <div class="cover-copy">
-        <img class="house-mark agency-mark" src="osool-logo-t.png${IMGV}" alt="أصول العقارية"
+        <img class="house-mark" src="${LOGO_W}${IMGV}" alt="ALSAFI"
              onerror="this.remove()">
-        <div class="tagline">${TAGLINE}</div>
         <div class="rule"></div>
-        <h2>للتفاصيل والحجز</h2>
-        <p class="phone">${PHONE}</p>
-        <p class="phone">${PHONE2}</p>
-        <p>صلالة — بالقرب من جراند مول والسعادة</p>
+        <h2>${TAGLINE_AR}</h2>
+        <p class="en-line en">${TAGLINE}</p>
+        <p class="made">صنع في عُمان · MADE IN OMAN</p>
+        <p class="loc">الصافي عمان · سلطنة عُمان</p>
       </div></div>`;
   if (f.type === 'story'){
     const c = f.sc;
-    /* Each scene carries its campaign photograph as a full-bleed ground
-       (stNN.jpg, numbered like the scenes). A scene whose photograph has
-       not been supplied yet falls back to the leather look — the onerror
-       removes the img and the scrim just deepens the leather slightly. */
-    /* pos:'top' floats the copy at the head of the frame instead — used when
-       a photograph's subjects live in the lower half and must stay clear */
+    /* Each scene carries its photograph as a full-bleed ground (stNN.jpg,
+       numbered like the scenes). A scene whose photograph is missing falls
+       back to the blue ground — the onerror removes the img and the scrim
+       just deepens the blue slightly. pos:'top' floats the copy at the head
+       of the frame instead — used when a photograph's subjects live in the
+       lower half and must stay clear. */
     return `<div class="leather story-page${c.pos === 'top' ? ' top' : ''}">
       <div class="css-leather"></div>
-      ${f.side === 'left' ? `<img class="wm" src="${LOGO_WM}${IMGV}" alt="" onerror="this.remove()">` : ''}
+      ${f.side === 'left' ? `<img class="wm" src="${LOGO_W}${IMGV}" alt="" onerror="this.remove()">` : ''}
       <img class="sbg" src="${srcOf(`st${c.n}.jpg`)}" alt="" decoding="async"
            onerror="this.remove()">
       <div class="scrim"></div>
-      <img class="sagency" src="osool-corner.png${IMGV}" alt="" onerror="this.remove()">
+      <img class="sagency" src="${LOGO_W}${IMGV}" alt="" onerror="this.remove()">
       <div class="frame"></div>
       <div class="story-copy">
         <h2 dir="rtl">${c.ar}</h2>
@@ -217,22 +218,20 @@ function faceHTML(f){
   }
   if (f.type === 'logo')
     // the two pages that would otherwise be blank — facing the poster and
-    // facing the price list. Off-white like the cover, the mark straight on
-    // the cream (transparent line-art cut, no plaque box), tagline beneath.
-    return `<div class="leather logo-page light">
+    // facing the price list. Brand blue, the white mark straight on it,
+    // the tagline beneath.
+    return `<div class="leather logo-page">
       <div class="css-leather"></div>
       <div class="frame"></div>
-      <img class="corner-agency" src="osool-logo-t.png${IMGV}" alt="أصول العقارية"
-           onerror="this.remove()">
       <div class="brandmark">
-        <img class="mark" src="taleen-logo-cover.png${IMGV}" alt="TALEEN"
+        <img class="mark" src="${LOGO_W}${IMGV}" alt="ALSAFI"
              onerror="this.closest('.brandmark').classList.add('nomark');this.remove()">
         <div class="fallback">
           <div class="rule"></div>
-          <h1>TALEEN</h1>
+          <h1 class="en">ALSAFI</h1>
           <div class="rule"></div>
         </div>
-        <div class="tagline">${TAGLINE}</div>
+        <div class="tagline en">${TAGLINE}</div>
       </div></div>`;
   return `<div class="leather"><div class="css-leather"></div><div class="frame"></div></div>`;
 }
@@ -571,7 +570,7 @@ setTimeout(()=>hint.classList.add('hide'), 6000);
    reaching here-and-surviving mean the tab is crash-looping, and the third
    load gets the lite viewer. A life counts as healthy once it lasts a while
    or leaves normally (pagehide covers reload, navigation and tab close). */
-function healthy(){ try{ localStorage.removeItem('taleenCrash'); }catch(e){} }
+function healthy(){ try{ localStorage.removeItem('alsafiCrash'); }catch(e){} }
 window.addEventListener('pagehide', healthy);
 setTimeout(healthy, 25000);
 
@@ -580,7 +579,7 @@ window.__bookOK = true;
 if (window.__bookReady) window.__bookReady();
 
 // introspection for the test rig: the running order and current position
-window.__taleen = {
+window.__alsafi = {
   order: faces.filter(f => f.type === 'img').map(f => f.src),
   page: () => flipped,
   total: TOTAL_PAGES,

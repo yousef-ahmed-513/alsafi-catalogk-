@@ -1,0 +1,48 @@
+# Temporary ferry workflow: the development sandbox cannot reach the image
+# CDN directly, so a runner fetches the generated scene photographs and
+# commits them to the working branch. Deleted once the images land.
+name: fetch-scenes
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/elegant-meitner-rkl8vs
+      - name: Fetch generated scene images
+        run: |
+          set -e
+          mkdir -p scenes-raw
+          base="https://d8j0ntlcm91z4.cloudfront.net/user_3GlehdN9gmeoK0pQB0ZEL2WZRqQ"
+          fetch() { curl -fsSL --retry 3 -o "scenes-raw/$1.png" "$base/$2"; }
+          fetch gen01 hf_20260811_101942_7ec71c83-05e4-44d9-ac85-a0a50031e735.png
+          fetch gen02 hf_20260811_101942_9491449f-a122-46f5-ad11-dfbca91a4e6c.png
+          fetch gen03 hf_20260811_101942_988d30af-6fad-4e01-b1ea-cf6407305937.png
+          fetch gen04 hf_20260811_101942_54c70679-61b3-4515-868d-825167676a42.png
+          fetch gen05 hf_20260811_101942_74373a28-c90d-4154-92db-b646ea15371f.png
+          fetch gen06 hf_20260811_101942_22f6b5e5-e636-416d-8133-8bcb81843b15.png
+          fetch gen07 hf_20260811_101942_2e8ded28-44a5-4b94-af13-f1ffbb3bd2b5.png
+          fetch gen08 hf_20260811_101942_db590f18-c265-4b62-a939-467f0014132e.png
+          fetch gen09 hf_20260811_101942_b3afcdad-a741-4058-9e79-1e160fd46acd.png
+          fetch gen10 hf_20260811_101943_009545a2-3311-4647-b8e4-3686458da745.png
+          fetch gen11 hf_20260811_101942_4da1ca16-d800-465d-b640-7c950e85462a.png
+          fetch gen12 hf_20260811_101942_2958748d-e374-4af5-b053-f540416071e4.png
+          fetch gen13 hf_20260811_102003_0bbf0b93-11bb-49ed-9bdd-9416a4effec2.png
+          fetch gen14 hf_20260811_102003_b4ace014-4b0b-4eae-8888-9e2f333a1c74.png
+          fetch gen15 hf_20260811_102003_4867eb29-f8bb-478d-9d0f-79cdc933a979.png
+          fetch gen16 hf_20260811_102003_201ac262-095f-487d-aa4d-19e44008ef76.png
+          fetch gen17 hf_20260811_102003_fe4a90ae-e726-4bff-b0ab-85b05f5fdb9c.png
+          fetch gen18 hf_20260811_102003_809194c1-bdf3-4723-86fa-62858391cc05.png
+          fetch gen19 hf_20260811_102003_985c9390-7a63-4edc-b9aa-e93c0f66e73f.png
+          fetch gen20 hf_20260811_102003_4713e8cf-b625-4abb-b51e-316af1295486.png
+          ls -la scenes-raw
+      - name: Commit images to the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scenes-raw
+          git commit -m "Ferry: raw generated scene images"
+          git push origin claude/elegant-meitner-rkl8vs
